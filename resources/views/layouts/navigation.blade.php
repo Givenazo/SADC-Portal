@@ -20,10 +20,13 @@
             {{ __('User Management') }}
         </x-nav-link>
         <x-nav-link :href="route('news.index')" :active="request()->routeIs('news.index')">
-            {{ __('Manage News') }}
+            {{ __('Breaking News') }}
         </x-nav-link>
-        <x-nav-link :href="route('admin.countries')" :active="request()->routeIs('admin.countries')">
-            {{ __('Member Countries') }}
+        <x-nav-link :href="route('admin.videos.index')" :active="request()->routeIs('admin.videos.*')">
+            {{ __('Uploaded Videos') }}
+        </x-nav-link>
+        <x-nav-link :href="route('contact.info')" :active="request()->routeIs('contact.info')">
+            {{ __('Contact Information') }}
         </x-nav-link>
     @endif
     @if(Auth::user() && Auth::user()->role && Auth::user()->role->name !== 'Admin')
@@ -38,6 +41,9 @@
         </x-nav-link>
         <x-nav-link :href="route('videos.index')" :active="request()->routeIs('videos.index')">
             {{ __('My Uploads') }}
+        </x-nav-link>
+        <x-nav-link :href="route('contact.info')" :active="request()->routeIs('contact.info')">
+            {{ __('Contact Information') }}
         </x-nav-link>
     @endif
 </div>

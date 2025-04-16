@@ -28,6 +28,13 @@ Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('admin.dashboard');
 
+// Suspend/Activate user
+Route::post('/admin/users/suspend', [\App\Http\Controllers\UserController::class, 'suspend'])->name('admin.users.suspend');
+
+// Custom Auth
+Route::post('/login', [\App\Http\Controllers\Auth\CustomAuthController::class, 'login'])->name('login.custom');
+Route::post('/forgot-password', [\App\Http\Controllers\Auth\CustomAuthController::class, 'forgotPassword'])->name('password.email.custom');
+
 Route::get('/admin/videos', [\App\Http\Controllers\AdminVideoController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('admin.videos.index');
@@ -61,7 +68,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin/users')->name('admin.user
 });
 
 Route::middleware('auth')->group(function () {
-    // Profile routes
+    // Existing routes...
+
+// Contact Information Page
+Route::get('/contact-info', [\App\Http\Controllers\ContactController::class, 'info'])->name('contact.info');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

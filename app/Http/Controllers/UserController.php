@@ -22,8 +22,7 @@ class UserController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(10)
-            ->appends(['search' => $search]);
+            ->get();
         return view('admin.users.index', compact('users', 'search'));
     }
 
@@ -79,6 +78,20 @@ class UserController extends Controller
         $user->role_id = $validated['role_id'];
         $user->save();
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
+    }
+
+    // Suspend or activate user
+    public function suspend(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'action' => 'required|in:suspend,activate',
+        ]);
+        $user = \App\Models\User::findOrFail($request->user_id);
+        $user->suspended = $request->action === 'suspend';
+        $user->save();
+        $msg = $user->suspended ? 'User suspended successfully.' : 'User activated successfully.';
+        return redirect()->back()->with('success', $msg);
     }
 
     // Delete user

@@ -48,5 +48,8 @@
                 @yield('content')
             </main>
         </div>
+        <footer class="text-center py-3 mt-5 bg-white shadow-sm" style="font-size:1rem;">
+            &copy; {{ date('Y') }} SADC News Portal. All Rights Reserved.
+        </footer>
     </body>
 </html>
