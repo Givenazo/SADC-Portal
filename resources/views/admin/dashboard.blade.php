@@ -9,6 +9,9 @@
             <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-lg me-2">
                 <i class="bi bi-people"></i> User Management
             </a>
+            <a href="{{ route('admin.videos.index') }}" class="btn btn-outline-success btn-lg me-2">
+                <i class="bi bi-collection-play"></i> Uploaded Videos
+            </a>
             <a href="{{ route('news.index') }}" class="btn btn-outline-primary btn-lg">
                 <i class="bi bi-newspaper"></i> Manage News
             </a>
@@ -178,51 +181,40 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class="card shadow border-0 mb-4">
-                <div class="card-header bg-info text-white">
-                    <i class="bi bi-trophy"></i> Most Active Uploader
-                </div>
-                <div class="card-body text-center">
-                    @if($mostActiveUploader)
-                        <h5 class="fw-bold">{{ $mostActiveUploader->uploader->name ?? 'Unknown' }}</h5>
-                        <p class="mb-0">Uploads: <span class="fw-bold">{{ $mostActiveUploader->uploads }}</span></p>
-                    @else
-                        <p class="text-muted">No uploads yet.</p>
-                    @endif
-                </div>
-            </div>
-        </div>
+
     </div>
 </div>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="row mb-4">
+<div class="row mb-4" style="padding-left:1cm;padding-right:1cm;">
     <div class="col-lg-6 mb-4">
         <div class="card shadow border-0">
-            <div class="card-header bg-success text-white"><i class="bi bi-bar-chart"></i> Daily Uploads Per Country</div>
-            <div class="card-body">
-                <canvas id="uploadsPerCountryChart"></canvas>
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-bar-chart"></i> Daily Uploads Per Country</span>
+    <span class="fw-normal" style="font-size:1rem;">{{ \Carbon\Carbon::now()->format('l, F j, Y') }}</span>
+</div>
+            <div class="card-body p-0 equal-widget-height" style="min-height:340px;height:340px;overflow-y:auto;">
+                <ul class="list-group list-group-flush">
+                    @foreach($uploadsPerCountryChart as $row)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ $row['country'] }}</span>
+                            <span class="badge bg-success rounded-pill" style="font-size:1.1rem;">{{ array_sum((array) $row['data']) }}</span>
+                        </li>
+                    @endforeach
+                </ul>
             </div>
         </div>
     </div>
     <div class="col-lg-6 mb-4">
         <div class="card shadow border-0">
             <div class="card-header bg-info text-white"><i class="bi bi-graph-up"></i> Download Counts Per Video</div>
-            <div class="card-body">
-                <canvas id="downloadsPerVideoChart"></canvas>
-            </div>
+            <div class="card-body equal-widget-height" style="min-height:340px;height:340px;overflow-y:auto;">
+    <canvas id="downloadsPerVideoChart"></canvas>
+</div>
         </div>
     </div>
-    <div class="col-lg-6 mb-4">
-        <div class="card shadow border-0">
-            <div class="card-header bg-warning text-dark"><i class="bi bi-pie-chart"></i> Active vs Blocked Countries</div>
-            <div class="card-body">
-                <canvas id="countryStatusChart"></canvas>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 <script>
@@ -261,19 +253,7 @@ new Chart(document.getElementById('downloadsPerVideoChart'), {
     options: {responsive:true, plugins:{legend:{display:false}}}
 });
 
-// --- Active vs Blocked Countries (Pie Chart) ---
-const countryStatusData = @json($countryStatusChart);
-new Chart(document.getElementById('countryStatusChart'), {
-    type: 'pie',
-    data: {
-        labels: Object.keys(countryStatusData),
-        datasets: [{
-            data: Object.values(countryStatusData),
-            backgroundColor: ['#28a745', '#dc3545']
-        }]
-    },
-    options: {responsive:true, plugins:{legend:{position:'bottom'}}}
-});
+
 const uploadsPerCountry = @json($uploadsPerCountry);
 const countries = [...new Set(uploadsPerCountry.map(u => u.country.name))];
 const dates = [...new Set(uploadsPerCountry.map(u => u.date))];

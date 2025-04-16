@@ -22,6 +22,9 @@
         <x-nav-link :href="route('news.index')" :active="request()->routeIs('news.index')">
             {{ __('Manage News') }}
         </x-nav-link>
+        <x-nav-link :href="route('admin.countries')" :active="request()->routeIs('admin.countries')">
+            {{ __('Member Countries') }}
+        </x-nav-link>
     @endif
     @if(Auth::user() && Auth::user()->role && Auth::user()->role->name !== 'Admin')
         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">

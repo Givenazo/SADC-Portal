@@ -28,6 +28,10 @@ Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('admin.dashboard');
 
+Route::get('/admin/videos', [\App\Http\Controllers\AdminVideoController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('admin.videos.index');
+
 // TEMPORARY DEBUG ROUTE: Only 'auth' middleware
 Route::get('/admin/debug-dashboard', [AdminDashboardController::class, 'index'])
     ->middleware(['auth']);
