@@ -36,7 +36,7 @@
     @if($videos->count())
         <div class="row g-4">
             @foreach($videos as $video)
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-4 video-row" id="video-row-{{ $video->id }}">
                     <div class="card video-card h-100">
                         @if($video->preview_thumbnail)
                             <img src="{{ asset('storage/' . $video->preview_thumbnail) }}" class="video-thumb" alt="Thumbnail">
@@ -95,4 +95,82 @@
         <div class="alert alert-info">You haven't uploaded any videos yet.</div>
     @endif
 </div>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteVideoModal" tabindex="-1" aria-labelledby="deleteVideoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger" id="deleteVideoModalLabel"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this video? This will also remove associated script and voiceover files if they exist.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteVideo">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="video-delete-alerts"></div>
+
+<script>
+let deleteVideoId = null;
+let deleteVideoUrl = null;
+
+// Show modal on delete button click
+Array.from(document.querySelectorAll('.delete-video-btn')).forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        deleteVideoId = btn.getAttribute('data-video-id');
+        deleteVideoUrl = btn.getAttribute('data-delete-url');
+        var modal = new bootstrap.Modal(document.getElementById('deleteVideoModal'));
+        modal.show();
+    });
+});
+
+// Confirm delete
+const confirmBtn = document.getElementById('confirmDeleteVideo');
+if (confirmBtn) {
+    confirmBtn.addEventListener('click', function() {
+        if (!deleteVideoId || !deleteVideoUrl) return;
+        fetch(deleteVideoUrl, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+        }).then(function(response) {
+            if (response.ok) {
+                // Remove card
+                const row = document.getElementById('video-row-' + deleteVideoId);
+                if (row) row.remove();
+                showAlert('Video and associated resources deleted successfully.', 'success');
+            } else {
+                response.json().then(function(data) {
+                    showAlert(data.message || 'Failed to delete video or associated files.', 'danger');
+                }).catch(function() {
+                    showAlert('Failed to delete video or associated files.', 'danger');
+                });
+            }
+        }).catch(function() {
+            showAlert('Failed to delete video or associated files.', 'danger');
+        });
+        var modalEl = document.getElementById('deleteVideoModal');
+        var modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+    });
+}
+
+function showAlert(msg, type) {
+    const alerts = document.getElementById('video-delete-alerts');
+    if (!alerts) return;
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+    alert.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${msg}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+    alerts.appendChild(alert);
+    setTimeout(() => { alert.remove(); }, 4000);
+}
+</script>
 @endsection

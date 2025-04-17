@@ -226,9 +226,28 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="preview_thumbnail" class="form-label">Preview Thumbnail (optional)</label>
-                                <input type="file" class="form-control form-control-lg" id="preview_thumbnail" name="preview_thumbnail" accept="image/*">
-                            </div>
+    <label for="preview_thumbnail" class="form-label">Preview Thumbnail (optional)</label>
+    <div id="thumbnail-preview-wrapper" style="margin-bottom:0.7rem;">
+        <img id="thumbnail-preview-img" src="https://placehold.co/120x80?text=No+Image" alt="Thumbnail Preview" style="width:120px;height:80px;object-fit:cover;border-radius:0.5rem;background:#f3f4f6;display:block;" />
+    </div>
+    <input type="file" class="form-control form-control-lg" id="preview_thumbnail" name="preview_thumbnail" accept="image/*">
+</div>
+<script>
+// Live preview for thumbnail
+const thumbInput = document.getElementById('preview_thumbnail');
+const thumbImg = document.getElementById('thumbnail-preview-img');
+thumbInput.addEventListener('change', function(e) {
+    if (thumbInput.files && thumbInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            thumbImg.src = ev.target.result;
+        };
+        reader.readAsDataURL(thumbInput.files[0]);
+    } else {
+        thumbImg.src = 'https://placehold.co/120x80?text=No+Image';
+    }
+});
+</script>
                             <button type="submit" class="modern-upload-btn w-100 mt-3">Upload Video</button>
                         </form>
                     </div>

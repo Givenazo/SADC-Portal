@@ -14,6 +14,7 @@ class AdminVideoController extends Controller
     {
         $videos = Video::with(['uploader', 'country'])
             ->orderByDesc('upload_date')
+            ->orderByDesc('created_at')
             ->paginate(20);
         return view('admin.videos.index', compact('videos'));
     }
