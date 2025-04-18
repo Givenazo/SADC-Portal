@@ -11,10 +11,12 @@
   </h1>
   <span class="text-gray-600 text-lg" style="font-size:1.15rem;display:block;margin-top:0;text-align:center;margin-left:1cm;">Manage all users of the SADC News Portal.</span>
 </div>
-<div class="d-flex justify-content-end align-items-center mb-4" style="gap:0.15rem;">
-  <form method="GET" action="" class="flex items-center" style="min-width:200px;max-width:420px;gap:0.4rem;">
-    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search users..." class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm" />
-    <button type="submit" class="px-3 py-2 bg-blue-600 text-white rounded-none hover:bg-blue-700 text-sm" style="border-top-right-radius:0.375rem; border-bottom-right-radius:0.375rem;"><i class="bi bi-search text-blue-100" style="color:#2563eb;"></i></button>
+<div class="d-flex align-items-center mb-4" style="display: flex; justify-content: space-between; gap: 1rem; width: 100%;">
+  <div style="display: flex; align-items: center; gap: 0.5rem;">
+    <form method="GET" action="" class="flex items-center" style="min-width:200px;max-width:420px;gap:0.4rem;">
+      <input type="text" name="search" value="{{ request('search') }}" placeholder="Search users..." class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm" />
+      <button type="submit" class="px-3 py-2 bg-blue-600 text-white rounded-none hover:bg-blue-700 text-sm" style="border-top-right-radius:0.375rem; border-bottom-right-radius:0.375rem;"><i class="bi bi-search text-blue-100" style="color:#2563eb;"></i></button>
+    </form>
     <button id="user-search-refresh" type="button" class="btn btn-outline-primary" style="height:38px; display:inline-flex; align-items:center; gap:0.3rem; border:2px solid #1677fa; border-radius:2rem; padding:0 1rem; margin-left:0.4rem;">
       <span class="d-none d-sm-inline">Refresh</span>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
@@ -22,7 +24,7 @@
         <path d="M8 1.5a.5.5 0 0 1 .5.5v3.707l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 5.707V2a.5.5 0 0 1 .5-.5z"/>
       </svg>
     </button>
-  </form>
+  </div>
   <a href="#" id="addUserBtn"
      class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
      style="height:36px; background:#2563eb; color:#fff; border-radius:0.375rem; box-shadow:0 2px 8px rgba(0,0,0,0.06); font-weight:600;">
@@ -32,71 +34,80 @@
 
 </div>
     <div class="bg-white rounded-xl shadow-lg p-6">
-    <div>
-        <table class="min-w-full divide-y divide-gray-200" style="border-collapse: separate; border-spacing: 0; font-size:0.95rem;">
-            <thead class="bg-[#f8fafc]" style="display:table; width:100%; table-layout:fixed;">
+    <div style="overflow-x:auto; width:100%;">
+        <table class="min-w-full divide-y divide-gray-200" style="border-collapse: separate; border-spacing: 0; font-size:0.93rem; min-width:700px; width:100%;">
+            <thead class="bg-[#f8fafc]">
     <tr>
         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+        <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="min-width:80px; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Email</th>
         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">View</th>
+        {{-- <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">View</th>
         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edit</th>
         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Password</th>
         <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Suspend</th>
-        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delete</th>
+        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delete</th> --}}
     </tr>
 </thead>
             </thead>
-            <tbody id="usersTableBody" class="bg-white divide-y divide-gray-100" style="display:block; max-height:400px; overflow-y:auto; width:100%;">
+            <tbody id="usersTableBody" class="bg-white divide-y divide-gray-100">
 @php $isOdd = false; @endphp
 @if(count($users))
     @foreach($users as $user)
         @php $isOdd = !$isOdd; @endphp
         <tr class="transition hover:bg-blue-50" style="border-bottom:1px solid #e5e7eb;{{ $isOdd ? 'background:#f9fafb;' : '' }}">
             <td class="px-6 py-5 text-left align-middle">
-                <div class="w-10 h-10 bg-[#003366] text-white flex items-center justify-center rounded-full font-bold text-lg uppercase">
-                    {{ strtoupper(substr($user->name,0,1)) }}
-                </div>
-                <span class="font-semibold">{{ $user->name }}</span>
-            </td>
-            <td class="px-6 py-5 text-left align-middle" style="word-break:break-all;font-size:0.95rem;">{{ $user->email }}</td>
+    <span class="font-semibold">{{ $user->name }}</span>
+</td>
+            <td class="px-2 py-3 text-left align-middle" style="min-width:80px; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:0.93rem;">
+    <button type="button" class="btn btn-outline-primary btn-sm show-email-btn" data-email="{{ $user->email }}" style="font-size:0.95rem; padding:0.2rem 0.7rem; white-space:nowrap; border:2px solid #dc2626; color:#dc2626; background:#fff;">Email</button>
+</td>
             <td class="px-6 py-5 text-left align-middle">{{ $user->country->name ?? '-' }}</td>
             <td class="px-6 py-5 text-left align-middle">{{ $user->role->name ?? '-' }}</td>
             
 <td class="px-6 py-4">
     
 </td>
-<td class="px-6 py-4">
-    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-        
-        <a href="#" class="view-user-btn" 
-    data-name="{{ $user->name }}"
-    data-email="{{ $user->email }}"
-    data-country="{{ $user->country->name ?? '-' }}"
-    data-role="{{ $user->role->name ?? '-' }}"
-    data-uploaded="{{ $user->videos_uploaded_count ?? 0 }}"
-    data-downloaded="{{ $user->videos_downloaded_count ?? 0 }}"
-    style="background:#14b8a6;color:#fff;font-weight:bold;border-radius:0.375rem;padding:0.25rem 0.6rem;margin-right:0.2rem;transition:background 0.2s;white-space:nowrap;display:inline-flex;align-items:center;" onmouseover="this.style.background='#0d9488'" onmouseout="this.style.background='#14b8a6'">
-    <i class="bi bi-eye" style="margin-right:0.5rem;"></i>View
-</a>
-<a href="#" class="edit-user-btn" 
-    data-user-id="{{ $user->id }}"
-    data-name="{{ $user->name }}"
-    data-email="{{ $user->email }}"
-    data-country="{{ $user->country->name ?? '' }}"
-    data-role="{{ $user->role->name ?? '' }}"
-    style="background:#a21caf;color:#fff;font-weight:bold;border-radius:0.375rem;padding:0.25rem 0.6rem;transition:background 0.2s;white-space:nowrap;display:inline-flex;align-items:center;" onmouseover="this.style.background='#701a75'" onmouseout="this.style.background='#a21caf'">
-    <i class="bi bi-pencil-square" style="margin-right:0.5rem;"></i>Edit
-</a>
-        <a href="#" class="password-user-btn" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" style="background:#f59e42;color:#fff;font-weight:bold;border-radius:0.375rem;padding:0.25rem 0.6rem;transition:background 0.2s;white-space:nowrap;display:inline-flex;align-items:center;" onmouseover="this.style.background='#d97706'" onmouseout="this.style.background='#f59e42'">
-    <i class="bi bi-key" style="margin-right:0.5rem;"></i>Password</a>
-        <a href="#" class="suspend-user-btn" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-suspended="{{ $user->suspended ? '1' : '0' }}" style="background:{{ $user->suspended ? '#22c55e' : '#facc15' }};color:#fff;font-weight:bold;border-radius:0.375rem;padding:0.25rem 0.6rem;transition:background 0.2s;white-space:nowrap;display:inline-flex;align-items:center;" onmouseover="this.style.background='{{ $user->suspended ? '#16a34a' : '#eab308' }}'" onmouseout="this.style.background='{{ $user->suspended ? '#22c55e' : '#facc15' }}'">
-    <i class="bi {{ $user->suspended ? 'bi-play-circle' : 'bi-pause-circle' }}" style="margin-right:0.5rem;"></i>{{ $user->suspended ? 'Activate' : 'Suspend' }}</a>
+<td class="px-2 py-3">
+    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto;">
+        <a href="#" class="view-user-btn"
+            data-name="{{ $user->name }}"
+            data-email="{{ $user->email }}"
+            data-country="{{ $user->country->name ?? '-' }}"
+            data-role="{{ $user->role->name ?? '-' }}"
+            data-uploaded="{{ $user->videos_uploaded_count ?? 0 }}"
+            data-downloaded="{{ $user->videos_downloaded_count ?? 0 }}"
+            style="background:#14b8a6;color:#fff;font-weight:bold;border-radius:0.375rem;padding:0.2rem 0.8rem;transition:background 0.2s;white-space:nowrap;display:inline-flex;align-items:center; font-size:1rem;"
+            onmouseover="this.style.background='#0d9488'" onmouseout="this.style.background='#14b8a6'">
+            <i class="bi bi-eye" style="margin-right:0.5rem;"></i>View
+        </a>
+        <a href="#" class="edit-user-btn"
+            data-user-id="{{ $user->id }}"
+            data-name="{{ $user->name }}"
+            data-email="{{ $user->email }}"
+            data-country="{{ $user->country->name ?? '' }}"
+            data-role="{{ $user->role->name ?? '' }}"
+            style="background:#a21caf;color:#fff;font-weight:bold;border-radius:0.375rem;padding:0.2rem 0.8rem;transition:background 0.2s;white-space:nowrap;display:inline-flex;align-items:center; font-size:1rem;"
+            onmouseover="this.style.background='#701a75'" onmouseout="this.style.background='#a21caf'">
+            <i class="bi bi-pencil-square" style="margin-right:0.5rem;"></i>Edit
+        </a>
+        <a href="#" class="password-user-btn" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}"
+            style="background:#f59e42;color:#fff;font-weight:bold;border-radius:0.375rem;padding:0.2rem 0.8rem;transition:background 0.2s;white-space:nowrap;display:inline-flex;align-items:center; font-size:1rem;"
+            onmouseover="this.style.background='#d97706'" onmouseout="this.style.background='#f59e42'">
+            <i class="bi bi-key" style="margin-right:0.5rem;"></i>Password
+        </a>
+        <a href="#" class="suspend-user-btn" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-suspended="{{ $user->suspended ? '1' : '0' }}"
+            style="background:{{ $user->suspended ? '#22c55e' : '#facc15' }};color:#fff;font-weight:bold;border-radius:0.375rem;padding:0.2rem 0.8rem;transition:background 0.2s;white-space:nowrap;display:inline-flex;align-items:center; font-size:1rem;"
+            onmouseover="this.style.background='{{ $user->suspended ? '#16a34a' : '#eab308' }}'" onmouseout="this.style.background='{{ $user->suspended ? '#22c55e' : '#facc15' }}'">
+            <i class="bi {{ $user->suspended ? 'bi-play-circle' : 'bi-pause-circle' }}" style="margin-right:0.5rem;"></i>{{ $user->suspended ? 'Activate' : 'Suspend' }}
+        </a>
         <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline" style="margin:0;">
             @csrf
             @method('DELETE')
-            <button type="submit" class="inline-block text-white bg-red-600 hover:bg-red-700 rounded px-4 py-2 font-bold transition" style="white-space:nowrap;display:inline-flex;align-items:center;" onclick="return confirm('Are you sure?')"><i class="bi bi-trash" style="margin-right:0.5rem;"></i>Delete</button>
+            <button type="submit" class="inline-block text-white bg-red-600 hover:bg-red-700 rounded px-4 py-2 font-bold transition"
+                style="white-space:nowrap;display:inline-flex;align-items:center; font-size:1rem; padding:0.2rem 0.8rem;" onclick="return confirm('Are you sure?')">
+                <i class="bi bi-trash" style="margin-right:0.5rem;"></i>Delete
+            </button>
         </form>
     </div>
 </td>
@@ -333,4 +344,28 @@ document.querySelectorAll('.view-user-btn').forEach(btn => {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <script src="/js/admin-users-live-search.js"></script>
+<!-- Email Modal -->
+<div id="emailModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.35); align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:0.75rem; max-width:350px; width:90vw; margin:auto; padding:2rem; box-shadow:0 8px 32px rgba(0,0,0,0.18); position:relative; display:flex; flex-direction:column; align-items:center;">
+    <button onclick="document.getElementById('emailModal').style.display='none'" style="position:absolute;top:1rem;right:1rem;font-size:1.5rem;color:#888;background:none;border:none;cursor:pointer;">&times;</button>
+    <h2 style="font-size:1.1rem;font-weight:600;color:#2563eb;margin-bottom:1rem;">Full Email Address</h2>
+    <div id="emailModalText" style="font-size:1.1rem;word-break:break-all;text-align:center;margin-bottom:1rem;"></div>
+    <button onclick="document.getElementById('emailModal').style.display='none'" class="btn btn-primary" style="margin-top:0.5rem;">Close</button>
+  </div>
+</div>
+<script>
+function bindEmailPopupButtons() {
+  document.querySelectorAll('.show-email-btn').forEach(function(btn) {
+    btn.onclick = function() {
+      document.getElementById('emailModalText').innerText = this.dataset.email;
+      document.getElementById('emailModal').style.display = 'flex';
+    }
+  });
+}
+// Initial bind
+bindEmailPopupButtons();
+// If using AJAX or dynamically updating the table, call bindEmailPopupButtons() after update.
+// If using jQuery AJAX search, you might add:
+// $(document).on('ajaxComplete', bindEmailPopupButtons);
+</script>
 @endsection

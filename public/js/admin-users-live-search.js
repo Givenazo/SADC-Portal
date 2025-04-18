@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(html => {
                 usersTableBody.innerHTML = html;
                 attachUserActionListeners();
+                if (typeof bindEmailPopupButtons === 'function') {
+                    bindEmailPopupButtons();
+                }
             });
     }
 
@@ -94,6 +97,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (searchInput) searchInput.value = '';
             doLiveSearch();
             if (searchInput) searchInput.focus();
+            if (typeof bindEmailPopupButtons === 'function') {
+                bindEmailPopupButtons();
+            }
         });
     }
 

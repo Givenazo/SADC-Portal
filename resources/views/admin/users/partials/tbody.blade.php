@@ -4,12 +4,9 @@
         @php $isOdd = !$isOdd; @endphp
         <tr class="transition hover:bg-blue-50" style="border-bottom:1px solid #e5e7eb;{{ $isOdd ? 'background:#f9fafb;' : '' }}">
             <td class="px-6 py-5 text-left align-middle">
-                <div class="w-10 h-10 bg-[#003366] text-white flex items-center justify-center rounded-full font-bold text-lg uppercase">
-                    {{ strtoupper(substr($user->name,0,1)) }}
-                </div>
                 <span class="font-semibold">{{ $user->name }}</span>
             </td>
-            <td class="px-6 py-5 text-left align-middle" style="word-break:break-all;font-size:0.95rem;">{{ $user->email }}</td>
+            <td class="px-2 py-3 text-left align-middle" style="min-width:80px; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:0.93rem;"><button type="button" class="btn btn-outline-primary btn-sm show-email-btn" data-email="{{ $user->email }}" style="font-size:0.95rem; padding:0.2rem 0.7rem; white-space:nowrap; border:2px solid #dc2626; color:#dc2626; background:#fff;">Email</button></td>
             <td class="px-6 py-5 text-left align-middle">{{ $user->country->name ?? '-' }}</td>
             <td class="px-6 py-5 text-left align-middle">{{ $user->role->name ?? '-' }}</td>
             <td class="px-6 py-4">
