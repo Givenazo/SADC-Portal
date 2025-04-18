@@ -1,11 +1,12 @@
 @extends('layouts.app')
 @section('content')
+<link rel="stylesheet" href="/css/sadc-custom.css">
 <div class="container py-4">
     <div class="bg-light py-3 px-2 mb-4 text-center" style="border-radius:0.5rem;">
-      <h1 class="fw-bold d-flex flex-column align-items-center justify-content-center" style="font-size:3rem;margin-bottom:0;color:#1677fa;font-weight:bold;text-align:center;">
+      <h1 class="fw-bold d-flex flex-column align-items-center justify-content-center sadc-header-darkblue" style="font-size:3rem;margin-bottom:0;font-weight:bold;text-align:center;color:inherit;">
         <span>
-          <i class="bi bi-globe me-1" style="font-size:2.5rem;color:#1677fa;"></i>
-          <i class="bi bi-newspaper me-2" style="font-size:2.5rem;color:#1677fa;"></i>
+          <i class="bi bi-globe me-1 sadc-header-darkblue" style="font-size:2.5rem;"></i>
+          <i class="bi bi-newspaper me-2 sadc-header-darkblue" style="font-size:2.5rem;"></i>
         </span>
         SADC News
       </h1>
@@ -34,7 +35,7 @@
                   <div class="card shadow-sm p-4" style="max-width:520px;width:100%;background:#f9fafb;border-radius:1rem;">
                     <div class="d-flex align-items-center mb-3">
                       <span class="me-3">
-                        <i class="bi bi-newspaper" style="font-size:2.7rem;color:#1677fa;"></i>
+                        <i class="bi bi-newspaper me-2 sadc-header-darkblue" style="font-size:2.7rem;"></i>
                       </span>
                       <div>
                         <h3 class="fw-bold mb-1" style="color:#222;font-size:2rem;">No News Yet</h3>

@@ -64,13 +64,20 @@ class AdminDashboardController extends Controller
         ];
 
         // (Keep old dashboard data for other widgets)
-        // Number of uploads per country daily (last 7 days)
-        $uploadsPerCountry = Video::select(DB::raw('DATE(upload_date) as date'), 'country_id', DB::raw('count(*) as uploads'))
+        // Number of uploads per country for today
+        $uploadsToday = Video::select('country_id', DB::raw('count(*) as uploads'))
             ->where('status', 'Published')
-            ->where('upload_date', '>=', Carbon::now()->subDays(7))
-            ->groupBy('date', 'country_id')
-            ->with('country:id,name')
-            ->get();
+            ->whereDate('upload_date', Carbon::today())
+            ->groupBy('country_id')
+            ->get()
+            ->keyBy('country_id');
+        $allCountries = Country::all(['id', 'name']);
+        $uploadsTodayPerCountry = $allCountries->map(function ($country) use ($uploadsToday) {
+            return [
+                'country' => $country->name,
+                'uploads' => (int) ($uploadsToday[$country->id]->uploads ?? 0),
+            ];
+        });
 
         // Total videos per category
         $videosPerCategory = Video::select('category_id', DB::raw('count(*) as total'))

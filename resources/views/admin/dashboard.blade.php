@@ -2,18 +2,19 @@
 
 @section('content')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/sadc-custom.css">
 <div class="container py-4">
-    <h1 class="mb-2 fw-bold text-primary d-flex align-items-center justify-content-between">
+    <h1 class="mb-2 fw-bold sadc-header-darkblue d-flex align-items-center justify-content-between">
         <span><i class="bi bi-bar-chart-fill"></i> Admin Dashboard</span>
         <div>
             <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-lg me-2">
                 <i class="bi bi-people"></i> User Management
             </a>
-            <a href="{{ route('admin.videos.index') }}" class="btn btn-outline-success btn-lg me-2">
-                <i class="bi bi-collection-play"></i> Uploaded Videos
+            <a href="{{ route('admin.videos.index') }}" class="btn btn-outline-success btn-lg me-2 sadc-header-darkblue">
+                <i class="bi bi-collection-play sadc-header-darkblue"></i> Uploaded Videos
             </a>
-            <a href="{{ route('news.index') }}" class="btn btn-outline-primary btn-lg">
-                <i class="bi bi-newspaper"></i> Manage News
+            <a href="{{ route('news.index') }}" class="btn btn-outline-primary btn-lg sadc-header-darkblue">
+                <i class="bi bi-newspaper sadc-header-darkblue"></i> Manage News
             </a>
         </div>
     </h1>
@@ -28,7 +29,9 @@
                     <h6 class="mt-2">Most Downloaded Video<br><small>(This Month)</small></h6>
                     @if($mostDownloadedVideo)
                         <div class="mb-2">
-                            <img src="{{ $mostDownloadedVideo->preview_thumbnail ?? 'https://via.placeholder.com/80x45' }}" alt="Thumbnail" class="rounded mb-1" style="width:80px;height:45px;object-fit:cover;">
+                            @if($mostDownloadedVideo->preview_thumbnail)
+    <img src="{{ $mostDownloadedVideo->preview_thumbnail }}" alt="Thumbnail" class="rounded mb-1" style="width:80px;height:45px;object-fit:cover;">
+@endif
                         </div>
                         <strong>{{ $mostDownloadedVideo->title }}</strong><br>
                         <small>By {{ $mostDownloadedVideo->uploader->name ?? 'Unknown' }}</small>
@@ -45,7 +48,9 @@
                     <h6 class="mt-2">Breaking News Story</h6>
                     @if($breakingNews)
                         <div class="mb-2">
-                            <img src="{{ $breakingNews->preview_thumbnail ?? 'https://via.placeholder.com/80x45' }}" alt="Thumbnail" class="rounded mb-1" style="width:80px;height:45px;object-fit:cover;">
+                            @if($breakingNews->preview_thumbnail)
+    <img src="{{ $breakingNews->preview_thumbnail }}" alt="Thumbnail" class="rounded mb-1" style="width:80px;height:45px;object-fit:cover;">
+@endif
                         </div>
                         <strong>{{ $breakingNews->title }}</strong><br>
                         <small>By {{ $breakingNews->uploader->name ?? 'Unknown' }}</small>
@@ -185,6 +190,8 @@
     </div>
 </div>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<noscript><style>.bi{display:none !important;}</style><span style='color:red'>Icons require JavaScript and CDN access.</span></noscript>
+<script>window.addEventListener('DOMContentLoaded',function(){var test=document.createElement('i');test.className='bi bi-star-fill';document.body.appendChild(test);var comp=window.getComputedStyle(test,':before').content;if(!comp||comp==='none'){var link=document.createElement('link');link.rel='stylesheet';link.href='/css/bootstrap-icons.min.css';document.head.appendChild(link);}test.remove();});</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="row mb-4" style="padding-left:1cm;padding-right:1cm;">

@@ -14,12 +14,14 @@ Route::get('/dashboard', function () {
         return redirect('/admin/dashboard');
     }
     
+    $user = auth()->user();
     $activeVideos = \App\Models\Video::with('uploader')
         ->where('status', 'Published')
         ->orderByDesc('upload_date')
+        ->orderByDesc('created_at')
         ->get();
-
-    return view('member.dashboard', compact('activeVideos'));
+    $myUploadsCount = \App\Models\Video::where('uploaded_by', $user->id)->count();
+    return view('member.dashboard', compact('activeVideos', 'myUploadsCount'));
 })
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
@@ -67,7 +69,19 @@ Route::middleware(['auth', 'verified'])->prefix('admin/users')->name('admin.user
     Route::delete('/{id}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('destroy');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Member Uploaded Videos page
+    Route::get('/member/uploaded-videos', function () {
+        $videos = \App\Models\Video::with(['uploader', 'country'])
+            ->orderByDesc('upload_date')
+            ->orderByDesc('created_at')
+            ->paginate(20);
+        return view('member.videos', compact('videos'));
+    })->name('member.videos');
+
+    // Member Test Videos page
+    Route::get('/member/test-videos', [\App\Http\Controllers\VideoController::class, 'testVideos'])
+        ->name('member.test-videos');
     // Existing routes...
 
 // Contact Information Page
@@ -87,6 +101,7 @@ Route::get('/contact-info', [\App\Http\Controllers\ContactController::class, 'in
     Route::get('/videos', [\App\Http\Controllers\VideoController::class, 'index'])->name('videos.index');
     Route::get('/news/create', [\App\Http\Controllers\NewsController::class, 'create'])->name('news.create');
     Route::post('/news', [\App\Http\Controllers\NewsController::class, 'store'])->name('news.store');
+    Route::put('/videos/{id}', [\App\Http\Controllers\VideoController::class, 'update'])->name('videos.update');
     Route::delete('/videos/{id}', [\App\Http\Controllers\VideoController::class, 'destroy'])->name('videos.destroy');
 });
 

@@ -1,100 +1,91 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="container py-5">
-    <h1 class="mb-4 fw-bold text-primary">Contact Information</h1>
-    <div class="mb-5">
-        <h2>About Us</h2>
-        <p>We are a leading regional portal dedicated to connecting SADC countries through digital media, news, and educational resources. Our mission is to foster collaboration, share knowledge, and empower communities across Southern Africa.</p>
-    </div>
-    <div class="row mb-5">
-        <div class="col-md-6">
-            <h3>Contact Details</h3>
-            <ul class="list-unstyled">
-                <li><strong>Phone:</strong> +27 12 345 6789</li>
-                <li><strong>Email:</strong> info@sadcportal.org</li>
-                <li><strong>Physical Address:</strong> 123 SADC Avenue, Pretoria, South Africa</li>
-            </ul>
-            <h4 class="mt-4">Business Hours</h4>
-            <ul class="list-unstyled">
-                <li>Monday - Friday: 08:00 - 17:00</li>
-                <li>Saturday: 09:00 - 13:00</li>
-                <li>Sunday & Public Holidays: Closed</li>
-            </ul>
-        </div>
-        <div class="col-md-6">
-            <h3>Find Us</h3>
-            <div style="height:200px; background:#f1f1f1; display:flex; align-items:center; justify-content:center; border-radius:8px;">
-                <span class="text-muted">[Google Map Placeholder]</span>
-            </div>
-            <h4 class="mt-4">Follow Us</h4>
-            <ul class="list-inline">
-                <li class="list-inline-item"><a href="#" class="text-primary">Facebook</a></li>
-                <li class="list-inline-item"><a href="#" class="text-info">Twitter</a></li>
-                <li class="list-inline-item"><a href="#" class="text-danger">YouTube</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="mb-5">
-        <h2>Frequently Asked Questions (FAQ)</h2>
-        <div class="accordion" id="faqAccordion">
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="faq1">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
-                        What is SADC Portal?
-                    </button>
-                </h2>
-                <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body">
-                        SADC Portal is an online platform for sharing news, videos, and resources among Southern African Development Community countries.
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="faq2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
-                        How can I contact support?
-                    </button>
-                </h2>
-                <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body">
-                        You can email us at info@sadcportal.org or call our support line at +27 12 345 6789.
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="faq3">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
-                        Where are you located?
-                    </button>
-                </h2>
-                <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body">
-                        Our main office is located at 123 SADC Avenue, Pretoria, South Africa.
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="faq4">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
-                        How do I upload a video?
-                    </button>
-                </h2>
-                <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="faq4" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body">
-                        Register or log in, then use the 'Upload Video' link in the menu to submit your content.
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div>
-        <h2>Other Information</h2>
-        <ul>
-            <li>VAT Number: 1234567890</li>
-            <li>Registration Number: 2025/123456/07</li>
-            <li>Customer Support: support@sadcportal.org</li>
-        </ul>
-    </div>
+@section('header')
+<div class="text-center mb-6">
+  <div class="bg-light py-3 px-2 mb-2 text-center" style="border-radius:0.5rem;">
+    <h1 class="fw-bold d-flex flex-column align-items-center justify-content-center sadc-header-darkblue" style="font-size:3rem;margin-bottom:0;font-weight:bold;text-align:center;">
+      <span><i class="bi bi-person-lines-fill me-2 sadc-header-darkblue" style="font-size:2.5rem;"></i></span>
+      Support and Info
+    </h1>
+    <span class="text-gray-600 text-lg" style="font-size:1.15rem;display:block;margin-top:0;text-align:center;margin-left:1cm;">Get support and information for the SADC News Portal.</span>
+  </div>
 </div>
+@endsection
+
+
+
+@section('content')
+
+<style>
+  .info-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px 0 rgba(44,62,80,0.08);
+    transition: box-shadow 0.2s;
+    padding: 32px 12px 24px 12px;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .info-card .icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+  }
+  .info-card h6 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #222;
+  }
+  .info-card p {
+    color: #888;
+    font-size: 1rem;
+    margin-bottom: 0;
+  }
+  .info-card .about { color: #1677fa; }
+  .info-card .values { color: #14b86b; }
+  .info-card .mission { color: #ff4747; }
+  .info-card .contact { color: #16b1fa; }
+  @media (max-width: 991px) {
+    .info-card { min-height: 220px; padding: 24px 8px; }
+  }
+</style>
+<div class="container py-4">
+  <div class="row g-4 mb-4">
+    <div class="col-lg-3 col-md-6">
+      <div class="info-card">
+        <i class="bi bi-info-circle-fill icon about"></i>
+        <h6>About Us</h6>
+        <p>Learn about the SADC News Portal, our history, and our mission to deliver reliable news across the region.</p>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="info-card">
+        <i class="bi bi-gem icon values"></i>
+        <h6>Core Values</h6>
+        <p>Integrity, transparency, and a commitment to truthful reporting are at the heart of everything we do.</p>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="info-card">
+        <i class="bi bi-bullseye icon mission"></i>
+        <h6>Mission</h6>
+        <p>To empower communities by providing timely, accurate, and relevant news for all SADC member states.</p>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="info-card">
+        <i class="bi bi-envelope-fill icon contact"></i>
+        <h6>Contact Info</h6>
+        <p class="text-center" style="width:100%">Email: info@sadcnews.com<br>Phone: +264 81 143 3825<br>Address: 123 Sacky Shikufa Avenue, Windhoek, Namibia</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<link rel="stylesheet" href="/css/sadc-custom.css">
+<noscript><style>.bi{display:none !important;}</style><span style='color:red'>Icons require JavaScript and CDN access.</span></noscript>
+
 @endsection

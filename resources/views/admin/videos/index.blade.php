@@ -1,12 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
+<link rel="stylesheet" href="/css/sadc-custom.css">
 <div class="container mx-auto py-10 px-6">
     <div class="mb-8">
     <div class="text-center mb-6">
     <div class="bg-light py-3 px-2 mb-2 text-center" style="border-radius:0.5rem;">
-      <h1 class="fw-bold d-flex flex-column align-items-center justify-content-center" style="font-size:3rem;margin-bottom:0;color:#1677fa;font-weight:bold;text-align:center;">
-        <span><i class="bi bi-collection-play-fill me-2" style="font-size:2.5rem;color:#1677fa;"></i></span>
+      <h1 class="fw-bold d-flex flex-column align-items-center justify-content-center sadc-header-darkblue" style="font-size:3rem;margin-bottom:0;font-weight:bold;text-align:center;">
+        <span><i class="bi bi-collection-play-fill me-2 sadc-header-darkblue" style="font-size:2.5rem;"></i></span>
         Uploaded Videos
       </h1>
       <span class="text-gray-600 text-lg" style="font-size:1.15rem;display:block;margin-top:0;text-align:center;margin-left:1cm;">Manage all uploaded videos of the SADC News Portal.</span>

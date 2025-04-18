@@ -15,8 +15,12 @@ class VideoController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $videos = \App\Models\Video::where('uploaded_by', $user->id)->latest('upload_date')->paginate(12);
-        return view('videos.index', compact('videos'));
+        $videos = \App\Models\Video::where('uploaded_by', $user->id)
+            ->orderByDesc('upload_date')
+            ->orderByDesc('created_at')
+            ->paginate(12);
+        $categories = \App\Models\Category::all();
+        return view('videos.index', compact('videos', 'categories'));
     }
     /**
      * Show the video upload form.
@@ -46,7 +50,7 @@ class VideoController extends Controller
             'video_file' => 'required|file|mimes:mp4,avi,mov,wmv|max:512000',
             'script_file' => 'required|file|mimes:pdf,doc,docx,txt|max:10240',
             'voiceover_file' => 'nullable|file|mimes:mp3,wav|max:20480',
-            'preview_thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'preview_thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'country_id' => 'required|exists:countries,id',
             'status' => 'required|in:Published,Archived,Blocked',
             'comments_enabled' => 'boolean',
@@ -76,7 +80,19 @@ class VideoController extends Controller
         // Dispatch VideoUploaded event
         event(new \App\Events\VideoUploaded($video));
 
-        return redirect()->route('videos.create')->with('success', 'Video uploaded successfully!');
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Video uploaded successfully!']);
+        }
+        return redirect()->route('videos.index')->with('success', 'Video uploaded successfully!');
+    }
+
+    /**
+     * Show all test videos to members.
+     */
+    public function testVideos()
+    {
+        $videos = Video::orderByDesc('upload_date')->paginate(12);
+        return view('member.videos.index', compact('videos'));
     }
 
     /**
@@ -86,22 +102,51 @@ class VideoController extends Controller
     {
         $video = Video::findOrFail($id);
         if ($video->uploaded_by !== auth()->id()) {
-            return redirect()->route('videos.index')->with('error', 'You are not authorized to delete this video.');
-        }
-        // Optionally: Delete associated files from storage
-        if ($video->video_path) {
-            Storage::disk('public')->delete($video->video_path);
-        }
-        if ($video->script_path) {
-            Storage::disk('public')->delete($video->script_path);
-        }
-        if ($video->voiceover_path) {
-            Storage::disk('public')->delete($video->voiceover_path);
-        }
-        if ($video->preview_thumbnail) {
-            Storage::disk('public')->delete($video->preview_thumbnail);
+            return redirect()->route('dashboard')->with('error', 'You are not authorized to delete this video.');
         }
         $video->delete();
         return redirect()->route('videos.index')->with('success', 'Video deleted successfully.');
+    }
+
+    /**
+     * Update a video uploaded by the authenticated user.
+     */
+    public function update(Request $request, $id)
+    {
+        $video = Video::findOrFail($id);
+        if ($video->uploaded_by !== auth()->id()) {
+            return redirect()->route('dashboard')->with('error', 'You are not authorized to edit this video.');
+        }
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
+            'video_file' => 'nullable|file|mimes:mp4,avi,mov,wmv|max:512000',
+            'script_file' => 'nullable|file|mimes:pdf,doc,docx,txt|max:10240',
+            'voiceover_file' => 'nullable|file|mimes:mp3,wav|max:20480',
+            'preview_thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+        $video->title = $validated['title'];
+        $video->description = $validated['description'];
+        $video->category_id = $validated['category_id'];
+        // Handle file replacements
+        if ($request->hasFile('video_file')) {
+            if ($video->video_path) Storage::disk('public')->delete($video->video_path);
+            $video->video_path = $request->file('video_file')->store('videos', 'public');
+        }
+        if ($request->hasFile('script_file')) {
+            if ($video->script_path) Storage::disk('public')->delete($video->script_path);
+            $video->script_path = $request->file('script_file')->store('scripts', 'public');
+        }
+        if ($request->hasFile('voiceover_file')) {
+            if ($video->voiceover_path) Storage::disk('public')->delete($video->voiceover_path);
+            $video->voiceover_path = $request->file('voiceover_file')->store('voiceovers', 'public');
+        }
+        if ($request->hasFile('preview_thumbnail')) {
+            if ($video->preview_thumbnail) Storage::disk('public')->delete($video->preview_thumbnail);
+            $video->preview_thumbnail = $request->file('preview_thumbnail')->store('thumbnails', 'public');
+        }
+        $video->save();
+        return redirect()->route('videos.index')->with('success', 'Video updated successfully!');
     }
 }
