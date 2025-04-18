@@ -83,7 +83,7 @@ class VideoController extends Controller
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Video uploaded successfully!']);
         }
-        return redirect()->route('videos.index')->with('success', 'Video uploaded successfully!');
+        return redirect()->route('videos.index');
     }
 
     /**
@@ -102,10 +102,10 @@ class VideoController extends Controller
     {
         $video = Video::findOrFail($id);
         if ($video->uploaded_by !== auth()->id()) {
-            return redirect()->route('dashboard')->with('error', 'You are not authorized to delete this video.');
+            return redirect()->route('dashboard');
         }
         $video->delete();
-        return redirect()->route('videos.index')->with('success', 'Video deleted successfully.');
+        return redirect()->route('videos.index');
     }
 
     /**
@@ -115,7 +115,7 @@ class VideoController extends Controller
     {
         $video = Video::findOrFail($id);
         if ($video->uploaded_by !== auth()->id()) {
-            return redirect()->route('dashboard')->with('error', 'You are not authorized to edit this video.');
+            return redirect()->route('dashboard');
         }
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -147,6 +147,6 @@ class VideoController extends Controller
             $video->preview_thumbnail = $request->file('preview_thumbnail')->store('thumbnails', 'public');
         }
         $video->save();
-        return redirect()->route('videos.index')->with('success', 'Video updated successfully!');
+        return redirect()->route('videos.index');
     }
 }

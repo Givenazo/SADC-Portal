@@ -69,6 +69,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin/users')->name('admin.user
     Route::delete('/{id}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('destroy');
 });
 
+Route::post('/admin/subscription/payment', [App\Http\Controllers\AdminDashboardController::class, 'saveSubscriptionPayment'])->name('admin.subscription.payment');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     // Member Uploaded Videos page
     Route::get('/member/uploaded-videos', function () {

@@ -19,9 +19,20 @@
         </div>
     </h1>
     <div class="alert alert-info mb-4">
-        <strong>Welcome to your analytics dashboard!</strong> Here you can monitor uploads, user activity, trending videos, and breaking news stories across the SADC portal. Use the charts and widgets below for actionable insights and to keep your finger on the pulse of the platform.
+        <strong>Welcome to your analytics dashboard!</strong> Here, you can seamlessly monitor uploads, user activity, trending videos, and breaking news stories across the SADC portal. Use the interactive charts and dynamic widgets below to gain actionable insights, track performance, and keep your finger firmly on the pulse of everything happening in SADC.
     </div>
     <div class="row g-4 mb-4">
+        <!-- Total Uploads Today Card -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow h-100 border-0" style="background:linear-gradient(135deg,#f85757 0%,#ff9800 100%);color:#fff;">
+                <div class="card-body text-center">
+                    <i class="bi bi-newspaper fs-1" style="filter:drop-shadow(0 2px 6px rgba(0,0,0,0.15));"></i>
+                    <h6 class="mt-2 fw-bold" style="font-size:1.25rem;letter-spacing:0.01em;">Total Uploads<br><small style="font-weight:400;font-size:1rem;">(Today)</small></h6>
+                    <span class="display-3 fw-bold" style="font-size:3.2rem;text-shadow:0 2px 10px rgba(0,0,0,0.08);">{{ isset($uploadsTodayPerCountry) ? collect($uploadsTodayPerCountry)->sum('uploads') : 0 }}</span>
+                </div>
+            </div>
+        </div>
+        <!-- Most Downloaded Video Card -->
         <div class="col-lg-3 col-md-6">
             <div class="card shadow h-100 border-0 bg-light">
                 <div class="card-body text-center">
@@ -29,14 +40,19 @@
                     <h6 class="mt-2">Most Downloaded Video<br><small>(This Month)</small></h6>
                     @if($mostDownloadedVideo)
                         <div class="mb-2">
-                            @if($mostDownloadedVideo->preview_thumbnail)
-    <img src="{{ $mostDownloadedVideo->preview_thumbnail }}" alt="Thumbnail" class="rounded mb-1" style="width:80px;height:45px;object-fit:cover;">
-@endif
+                            <img src="{{ $mostDownloadedVideo->preview_thumbnail ? asset('storage/' . $mostDownloadedVideo->preview_thumbnail) : asset('images/video-placeholder.png') }}"
+     onerror="this.onerror=null;this.src='{{ asset('images/video-placeholder.png') }}';"
+     alt="Thumbnail" class="rounded mb-1 d-block mx-auto" style="width:80px;height:45px;object-fit:cover;">
                         </div>
                         <strong>{{ $mostDownloadedVideo->title }}</strong><br>
                         <small>By {{ $mostDownloadedVideo->uploader->name ?? 'Unknown' }}</small>
                     @else
-                        <span class="text-muted">No data</span>
+                        @if(isset($paidPercentage) && ($paidCount + $unpaidCount) > 0)
+    <span class="fw-bold" style="font-size:1.25rem;">{{ $paidPercentage }}% paid</span><br>
+    <small style="font-size:1.1rem;">({{ $paidCount }}/{{ $paidCount + $unpaidCount }} countries)</small>
+@else
+    <span class="text-muted">No data</span>
+@endif
                     @endif
                 </div>
             </div>
@@ -48,9 +64,9 @@
                     <h6 class="mt-2">Breaking News Story</h6>
                     @if($breakingNews)
                         <div class="mb-2">
-                            @if($breakingNews->preview_thumbnail)
-    <img src="{{ $breakingNews->preview_thumbnail }}" alt="Thumbnail" class="rounded mb-1" style="width:80px;height:45px;object-fit:cover;">
-@endif
+                            <img src="{{ $breakingNews->preview_thumbnail ? asset('storage/' . $breakingNews->preview_thumbnail) : asset('images/video-placeholder.png') }}"
+     onerror="this.onerror=null;this.src='{{ asset('images/video-placeholder.png') }}';"
+     alt="Thumbnail" class="rounded mb-1 d-block mx-auto" style="width:80px;height:45px;object-fit:cover;">
                         </div>
                         <strong>{{ $breakingNews->title }}</strong><br>
                         <small>By {{ $breakingNews->uploader->name ?? 'Unknown' }}</small>
@@ -69,7 +85,12 @@
                         <strong>{{ $activeUser->uploader->name ?? 'Unknown' }}</strong><br>
                         <small>Uploads: {{ $activeUser->uploads }}</small>
                     @else
-                        <span class="text-muted">No data</span>
+                        @if(isset($paidPercentage) && ($paidCount + $unpaidCount) > 0)
+    <span class="fw-bold" style="font-size:1.25rem;">{{ $paidPercentage }}% paid</span><br>
+    <small style="font-size:1.1rem;">({{ $paidCount }}/{{ $paidCount + $unpaidCount }} countries)</small>
+@else
+    <span class="text-muted">No data</span>
+@endif
                     @endif
                 </div>
             </div>
@@ -83,77 +104,150 @@
                         <strong>{{ $mostCommentedVideo->title }}</strong><br>
                         <small>Comments: {{ $mostCommentedVideo->comments_count }}</small>
                     @else
-                        <span class="text-muted">No data</span>
+                        @if(isset($paidPercentage) && ($paidCount + $unpaidCount) > 0)
+    <span class="fw-bold" style="font-size:1.25rem;">{{ $paidPercentage }}% paid</span><br>
+    <small style="font-size:1.1rem;">({{ $paidCount }}/{{ $paidCount + $unpaidCount }} countries)</small>
+@else
+    <span class="text-muted">No data</span>
+@endif
                     @endif
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row g-4 mb-4">
+        <!-- Boomer of the Month Widget -->
         <div class="col-lg-3 col-md-6">
-            <div class="card shadow h-100 border-0">
+            <div class="card shadow h-100 border-0 bg-light">
                 <div class="card-body text-center">
-                    <i class="bi bi-upload fs-1 text-success"></i>
-                    <h6 class="mt-2">Uploads Per Country<br><small>(7 Days)</small></h6>
-                    <canvas id="uploadsPerCountryChart" height="120"></canvas>
+                    <i class="bi bi-emoji-frown fs-1 text-secondary"></i>
+                    <h6 class="mt-2">Boomer of the Month<br><small>(Least Uploads)</small></h6>
+                    @if($boomerOfMonth && $boomerOfMonth->uploader)
+                        <strong>{{ $boomerOfMonth->uploader->name }}</strong><br>
+                        <small>Uploads: {{ $boomerOfMonth->uploads }}</small>
+                    @else
+                        @if(isset($paidPercentage) && ($paidCount + $unpaidCount) > 0)
+    <span class="fw-bold" style="font-size:1.25rem;">{{ $paidPercentage }}% paid</span><br>
+    <small style="font-size:1.1rem;">({{ $paidCount }}/{{ $paidCount + $unpaidCount }} countries)</small>
+@else
+    <span class="text-muted">No data</span>
+@endif
+                    @endif
                 </div>
             </div>
         </div>
+        <!-- Best Category Widget -->
         <div class="col-lg-3 col-md-6">
             <div class="card shadow h-100 border-0">
                 <div class="card-body text-center">
-                    <i class="bi bi-collection-play fs-1 text-info"></i>
-                    <h6 class="mt-2">Videos Per Category</h6>
-                    <canvas id="videosPerCategoryChart" height="120"></canvas>
+                    <i class="bi bi-trophy fs-1" style="filter:drop-shadow(0 2px 6px rgba(0,0,0,0.13));color:#b8860b;"></i>
+                    <h6 class="mt-2 fw-bold" style="font-size:1.22rem;letter-spacing:0.01em;">Best Category</h6>
+                    @php
+                        $bestCategory = null;
+                        if(isset($videosPerCategory) && count($videosPerCategory)) {
+                            $bestCategory = collect($videosPerCategory)->sortByDesc('total')->first();
+                        }
+                    @endphp
+                    @if($bestCategory && isset($bestCategory['category']['name']))
+                        <span class="fw-bold" style="font-size:1.25rem;">{{ $bestCategory['category']['name'] }}</span><br>
+                        <small style="font-size:1.1rem;">Uploads: <span class="fw-semibold">{{ $bestCategory['total'] }}</span></small>
+                    @else
+                        @if(isset($paidPercentage) && ($paidCount + $unpaidCount) > 0)
+    <span class="fw-bold" style="font-size:1.25rem;">{{ $paidPercentage }}% paid</span><br>
+    <small style="font-size:1.1rem;">({{ $paidCount }}/{{ $paidCount + $unpaidCount }} countries)</small>
+@else
+    <span class="text-muted">No data</span>
+@endif
+                    @endif
                 </div>
             </div>
         </div>
+        <!-- Revenue Streams Widget -->
         <div class="col-lg-3 col-md-6">
-            <div class="card shadow h-100 border-0">
+            <div class="card shadow h-100 border-0 bg-light d-flex flex-column justify-content-between">
                 <div class="card-body text-center">
-                    <i class="bi bi-chat-dots fs-1 text-warning"></i>
-                    <h6 class="mt-2">Comments Per Video</h6>
-                    <canvas id="commentsPerVideoChart" height="120"></canvas>
+                    <i class="bi bi-cash-stack fs-1 text-success"></i>
+                    <h6 class="mt-2">Revenue Streams</h6>
+                    @if(isset($paidPercentage) && ($paidCount + $unpaidCount) > 0)
+    <span class="fw-bold" style="font-size:1.25rem;">{{ $paidPercentage }}% paid</span><br>
+    <small style="font-size:1.1rem;">({{ $paidCount }}/{{ $paidCount + $unpaidCount }} countries)</small>
+@else
+    <span class="text-muted">No data</span>
+@endif
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="card shadow h-100 border-0">
-                <div class="card-body text-center">
-                    <i class="bi bi-people-x fs-1 text-danger"></i>
-                    <h6 class="mt-2">Overdue Countries</h6>
-                    <ul class="list-unstyled mb-0">
-                        @forelse($overdueCountries as $country)
-                            <li>{{ $country->name }}</li>
-                        @empty
-                            <li class="text-muted">None</li>
-                        @endforelse
-                    </ul>
+                <div class="card-footer bg-transparent border-0 text-center pt-0 pb-3">
+                    <a href="#" class="btn btn-outline-primary btn-sm disabled" tabindex="-1" aria-disabled="true">More Data</a>
                 </div>
             </div>
         </div>
     </div>
 
+
     <div class="row g-4 mb-4">
         <div class="col-lg-8">
             <div class="card shadow border-0 mb-4">
-                <div class="card-header bg-primary text-white">
-                    <i class="bi bi-card-list"></i> Subscription Statuses
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-card-list"></i> Payment Statuses</span>
+    <span class="fw-normal" style="font-size:1rem;">
+        {{ \Carbon\Carbon::now()->startOfMonth()->format('d') }} -
+        {{ \Carbon\Carbon::now()->endOfMonth()->format('d F Y') }}
+    </span>
                 </div>
                 <div class="card-body p-0">
                     <div style="max-height: 420px; overflow-y: auto;">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
-                                <tr><th>Country</th><th>Status</th><th>Payment</th><th>Start</th><th>End</th></tr>
+                                <tr><th>Country</th><th>Status</th><th class="text-center">Payment Status</th><th class="text-center">Payment</th><th>Start</th><th>End</th></tr>
                             </thead>
                             <tbody>
                             @foreach($subscriptions as $sub)
-                                <tr>
-                                    <td>{{ $sub->country->name }}</td>
-                                    <td><span class="badge bg-{{ $sub->status == 'Active' ? 'success' : ($sub->status == 'Suspended' ? 'warning' : 'danger') }}">{{ $sub->status }}</span></td>
-                                    <td>{{ $sub->payment_status }}</td>
-                                    <td>{{ $sub->start_date }}</td>
-                                    <td>{{ $sub->end_date }}</td>
+                                <tr data-sub-id="{{ $sub->id }}">
+    <td>{{ $sub->country->name }}</td>
+    <td class="status-cell"><span class="badge bg-{{ $sub->status == 'Active' ? 'success' : ($sub->status == 'Suspended' ? 'warning' : 'danger') }}">{{ $sub->status }}</span></td>
+    <td class="payment-status-cell text-center">
+        <span class="badge bg-{{ $sub->payment_status == 'paid' ? 'success' : 'danger' }}">{{ ucfirst($sub->payment_status) }}</span>
+    </td>
+    <td class="text-center">
+        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#payModal{{ $sub->id }}"
+@if($sub->payment_status == 'paid' && \Carbon\Carbon::parse($sub->end_date)->isFuture()) disabled @endif>Pay</button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="payModal{{ $sub->id }}" tabindex="-1" aria-labelledby="payModalLabel{{ $sub->id }}" aria-hidden="true">
+                                          <div class="modal-dialog">
+                                            <div class="modal-content">
+                                              <div class="modal-header">
+                                                <h5 class="modal-title" id="payModalLabel{{ $sub->id }}">Record Payment</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                              </div>
+                                              <div class="modal-body">
+                                                <form>
+                                                  <div class="mb-3">
+                                                    <label for="paymentType{{ $sub->id }}" class="form-label">Payment Period</label>
+                                                    <select class="form-select" id="paymentType{{ $sub->id }}">
+  <option value="1 Month">1 Month</option>
+  <option value="3 Months">3 Months</option>
+  <option value="6 Months">6 Months</option>
+  <option value="9 Months">9 Months</option>
+  <option value="12 Months">12 Months</option>
+</select>
+                                                  </div>
+                                                  <div class="mb-3">
+                                                    <label for="startDate{{ $sub->id }}" class="form-label">Start Date</label>
+                                                    <input type="date" class="form-control" id="startDate{{ $sub->id }}">
+                                                  </div>
+                                                  <div class="mb-3">
+                                                    <label for="endDate{{ $sub->id }}" class="form-label">End Date</label>
+                                                    <input type="date" class="form-control" id="endDate{{ $sub->id }}" readonly>
+                                                  </div>
+                                                </form>
+                                              </div>
+                                              <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="button" class="btn btn-primary save-payment-btn" data-bs-id="{{ $sub->id }}" data-bs-dismiss="modal">Save</button>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </td>
+                                    <td class="start-date-cell">{{ $sub->start_date }}</td>
+                                    <td class="end-date-cell">{{ $sub->end_date }}</td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -165,19 +259,20 @@
         <div class="col-lg-4">
             <div class="card shadow border-0 mb-4">
                 <div class="card-header bg-info text-white">
-                    <i class="bi bi-trophy"></i> Most Active Uploader by Country
+                    <i class="bi bi-trophy"></i> Most Active Member (Per Month)
                 </div>
                 <div class="card-body p-0">
                     <div style="max-height: 420px; overflow-y: auto;">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
-                                <tr><th>Country</th><th>Uploads</th></tr>
+                                <tr><th>Country</th><th class="text-center">Uploads</th><th class="text-center">Downloads</th></tr>
                             </thead>
                             <tbody>
                             @foreach($uploadsByCountry as $row)
                                 <tr>
                                     <td>{{ $row['name'] }}</td>
-                                    <td>{{ $row['uploads'] }}</td>
+                                    <td class="text-center">{{ $row['uploads'] }}</td>
+                                    <td class="text-center">{{ $row['downloads'] }}</td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -190,6 +285,104 @@
     </div>
 </div>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<!-- Auto-calculate end date based on payment period and start date -->
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[id^="paymentType"]').forEach(function(periodSelect) {
+        var subId = periodSelect.id.replace('paymentType','');
+        var startInput = document.getElementById('startDate' + subId);
+        var endInput = document.getElementById('endDate' + subId);
+        function calcEndDate() {
+            var period = periodSelect.value;
+            var start = startInput.value;
+            if (!start) return;
+            var days = 30;
+            if (period === '3 Months') days = 90;
+            else if (period === '6 Months') days = 180;
+            else if (period === '9 Months') days = 270;
+            else if (period === '12 Months') days = 360;
+            var d = new Date(start);
+            d.setDate(d.getDate() + days);
+            var yyyy = d.getFullYear();
+            var mm = String(d.getMonth()+1).padStart(2,'0');
+            var dd = String(d.getDate()).padStart(2,'0');
+            endInput.value = yyyy + '-' + mm + '-' + dd;
+        }
+        if (startInput && endInput) {
+            startInput.addEventListener('change', calcEndDate);
+            periodSelect.addEventListener('change', calcEndDate);
+        }
+    });
+    document.querySelectorAll('.save-payment-btn').forEach(function(saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            var subId = saveBtn.getAttribute('data-bs-id');
+            var startDate = document.getElementById('startDate' + subId).value;
+            var endDate = document.getElementById('endDate' + subId).value;
+            var row = document.querySelector('tr[data-sub-id="' + subId + '"]');
+            fetch('/admin/subscription/payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    id: subId,
+                    start_date: startDate,
+                    end_date: endDate
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (row.querySelector('.status-cell')) row.querySelector('.status-cell').innerHTML = '<span class="badge bg-success">Active</span>';
+if (row.querySelector('.payment-status-cell')) row.querySelector('.payment-status-cell').innerHTML = '<span class="badge bg-success">Paid</span>';
+if (row.querySelector('.btn-outline-primary')) {
+    // Only enable if endDate is in the past
+    var today = new Date();
+    var ed = new Date(endDate);
+    if (ed > today) {
+        row.querySelector('.btn-outline-primary').setAttribute('disabled', 'disabled');
+    } else {
+        row.querySelector('.btn-outline-primary').removeAttribute('disabled');
+    }
+}
+if (row.querySelector('.start-date-cell')) row.querySelector('.start-date-cell').innerText = startDate;
+if (row.querySelector('.end-date-cell')) row.querySelector('.end-date-cell').innerText = endDate;
+// Update Revenue Streams widget
+var revWidget = document.querySelector('.card-body.text-center i.bi-cash-stack')?.parentElement;
+if (revWidget) {
+    if (typeof data.paidPercentage !== 'undefined' && typeof data.paidCount !== 'undefined' && typeof data.unpaidCount !== 'undefined') {
+        var total = data.paidCount + data.unpaidCount;
+        if (total > 0) {
+            revWidget.querySelectorAll('span, small').forEach(function(el) { el.remove(); });
+            var percentSpan = document.createElement('span');
+            percentSpan.className = 'fw-bold';
+            percentSpan.style.fontSize = '1.25rem';
+            percentSpan.innerText = data.paidPercentage + '% paid';
+            var countSmall = document.createElement('small');
+            countSmall.style.fontSize = '1.1rem';
+            countSmall.innerText = '(' + data.paidCount + '/' + total + ' countries)';
+            revWidget.appendChild(percentSpan);
+            revWidget.appendChild(document.createElement('br'));
+            revWidget.appendChild(countSmall);
+        } else {
+            revWidget.querySelectorAll('span, small').forEach(function(el) { el.remove(); });
+            var noData = document.createElement('span');
+            noData.className = 'text-muted';
+            noData.innerText = 'No data';
+            revWidget.appendChild(noData);
+        }
+    }
+}
+                } else {
+                    alert('Error: ' + (data.message || 'Could not save payment.'));
+                }
+            })
+            .catch(() => alert('Error: Could not save payment.'));
+        });
+    });
+});
+</script>
 <noscript><style>.bi{display:none !important;}</style><span style='color:red'>Icons require JavaScript and CDN access.</span></noscript>
 <script>window.addEventListener('DOMContentLoaded',function(){var test=document.createElement('i');test.className='bi bi-star-fill';document.body.appendChild(test);var comp=window.getComputedStyle(test,':before').content;if(!comp||comp==='none'){var link=document.createElement('link');link.rel='stylesheet';link.href='/css/bootstrap-icons.min.css';document.head.appendChild(link);}test.remove();});</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -198,120 +391,154 @@
     <div class="col-lg-6 mb-4">
         <div class="card shadow border-0">
             <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-    <span><i class="bi bi-bar-chart"></i> Daily Uploads Per Country</span>
+    <span><i class="bi bi-bar-chart"></i> Today's Uploads Per Country</span>
     <span class="fw-normal" style="font-size:1rem;">{{ \Carbon\Carbon::now()->format('l, F j, Y') }}</span>
 </div>
             <div class="card-body p-0 equal-widget-height" style="min-height:340px;height:340px;overflow-y:auto;">
                 <ul class="list-group list-group-flush">
-                    @foreach($uploadsPerCountryChart as $row)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>{{ $row['country'] }}</span>
-                            <span class="badge bg-success rounded-pill" style="font-size:1.1rem;">{{ array_sum((array) $row['data']) }}</span>
-                        </li>
-                    @endforeach
+                    @if(isset($uploadsTodayPerCountry))
+    @foreach($uploadsTodayPerCountry as $row)
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>{{ $row['country'] }}</span>
+    <span class="badge rounded-pill" style="font-size:1.1rem;background-color:{{ $row['uploads'] >= 3 ? '#28a745' : '#dc3545' }};color:white;">{{ $row['uploads'] }}</span>
+</li>
+    @endforeach
+@else
+    <li class="list-group-item text-danger">uploadsTodayPerCountry is not set!<br>Debug: <pre>{{ print_r(array_keys(get_defined_vars()), true) }}</pre></li>
+@endif
                 </ul>
             </div>
         </div>
     </div>
     <div class="col-lg-6 mb-4">
         <div class="card shadow border-0">
-            <div class="card-header bg-info text-white"><i class="bi bi-graph-up"></i> Download Counts Per Video</div>
-            <div class="card-body equal-widget-height" style="min-height:340px;height:340px;overflow-y:auto;">
-    <canvas id="downloadsPerVideoChart"></canvas>
+            <div class="card-header bg-info text-white"><i class="bi bi-graph-up"></i> Overall Uploads Presentation</div>
+            <div class="card-body" style="min-height:340px;height:340px;overflow-y:auto;">
+    <div class="mt-3">
+        <h6 class="fw-bold text-center">Uploads Distribution by Country</h6>
+        @php
+            $hasUploadsPie = isset($uploadsOverallPerCountry) && collect($uploadsOverallPerCountry)->sum('uploads') > 0;
+        @endphp
+        @if($hasUploadsPie)
+            <canvas id="uploadsPieChart"></canvas>
+        @else
+            <div class="text-center text-muted my-4">No upload data available for pie chart.</div>
+        @endif
+    </div>
 </div>
         </div>
     </div>
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// --- Daily Uploads Per Country (Bar Chart) ---
-const uploadsPerCountryData = @json($uploadsPerCountryChart);
-const uploadsLabels = @json(collect(range(0, 6))->map(fn($i) => \Carbon\Carbon::now()->subDays($i)->format('M d'))->reverse()->values());
-const uploadsDatasets = uploadsPerCountryData.map(row => ({
-    label: row.country,
-    data: row.data,
-    backgroundColor: `rgba(${Math.floor(Math.random()*200)},${Math.floor(Math.random()*200)},${Math.floor(Math.random()*200)},0.6)`
-}));
-new Chart(document.getElementById('uploadsPerCountryChart'), {
-    type: 'bar',
-    data: {
-        labels: uploadsLabels,
-        datasets: uploadsDatasets
-    },
-    options: {responsive:true, plugins:{legend:{position:'top'}}}
-});
+(function() {
+    // --- Daily Uploads Per Country (Bar Chart) ---
+    const uploadsTodayPerCountryBar = @json(isset($uploadsTodayPerCountry) ? $uploadsTodayPerCountry : []);
+    const uploadsBarLabels = uploadsTodayPerCountryBar.map(row => row.country);
+    const uploadsBarData = uploadsTodayPerCountryBar.map(row => row.uploads);
+    const uploadsBarCanvas = document.getElementById('uploadsPerCountryChart');
+    if (uploadsBarCanvas) {
+        new Chart(uploadsBarCanvas, {
+            type: 'bar',
+            data: {
+                labels: uploadsBarLabels,
+                datasets: [{
+                    label: 'Uploads Today',
+                    data: uploadsBarData,
+                    backgroundColor: 'rgba(40,167,69,0.7)',
+                }]
+            },
+            options: {responsive:true, plugins:{legend:{display:false}}}
+        });
+    }
+})();
 
-// --- Download Counts Per Video (Line Chart) ---
-const downloadsData = @json($downloadsPerVideoChart);
-new Chart(document.getElementById('downloadsPerVideoChart'), {
-    type: 'line',
-    data: {
-        labels: downloadsData.map(row => row.label),
-        datasets: [{
-            label: 'Downloads',
-            data: downloadsData.map(row => row.count),
-            fill: false,
-            borderColor: 'rgba(54,162,235,1)',
-            backgroundColor: 'rgba(54,162,235,0.2)',
-            tension: 0.3
-        }]
-    },
-    options: {responsive:true, plugins:{legend:{display:false}}}
-});
+(function() {
+    // --- Download Counts Per Video (Line Chart) ---
+    const downloadsLineData = @json($downloadsPerVideoChart);
+    const downloadsLineCanvas = document.getElementById('downloadsPerVideoChart');
+    if (downloadsLineCanvas) {
+        new Chart(downloadsLineCanvas, {
+            type: 'line',
+            data: {
+                labels: downloadsLineData.map(row => row.label),
+                datasets: [{
+                    label: 'Downloads',
+                    data: downloadsLineData.map(row => row.count),
+                    backgroundColor: 'rgba(23,162,184,0.7)',
+                    borderColor: 'rgba(23,162,184,1)',
+                    fill: false,
+                    tension: 0.3
+                }]
+            },
+            options: {responsive:true, plugins:{legend:{display:false}}}
+        });
+    }
+})();
 
+(function() {
+    // --- Videos Per Category (Bar Chart) ---
+    const videosPerCategoryBar = @json($videosPerCategory);
+    const videosPerCategoryCanvas = document.getElementById('videosPerCategoryChart');
+    if (videosPerCategoryCanvas) {
+        new Chart(videosPerCategoryCanvas, {
+            type: 'bar',
+            data: {
+                labels: videosPerCategoryBar.map(c => c.category.name),
+                datasets: [{
+                    label: 'Videos',
+                    data: videosPerCategoryBar.map(c => c.total),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                }],
+            },
+            options: { plugins: { legend: { display: false } } }
+        });
+    }
+})();
 
-const uploadsPerCountry = @json($uploadsPerCountry);
-const countries = [...new Set(uploadsPerCountry.map(u => u.country.name))];
-const dates = [...new Set(uploadsPerCountry.map(u => u.date))];
-const uploadsData = countries.map(country => {
-    return {
-        label: country,
-        data: dates.map(date => {
-            const found = uploadsPerCountry.find(u => u.country.name === country && u.date === date);
-            return found ? found.uploads : 0;
-        }),
-        fill: false,
-        borderColor: '#' + Math.floor(Math.random()*16777215).toString(16),
-    };
-});
-new Chart(document.getElementById('uploadsPerCountryChart'), {
-    type: 'line',
-    data: {
-        labels: dates,
-        datasets: uploadsData,
-    },
-    options: { plugins: { legend: { display: false } } }
-});
+(function() {
+    // --- Comments Per Video Chart ---
+    const commentsPerVideoBar = @json($commentsPerVideo);
+    const commentsPerVideoCanvas = document.getElementById('commentsPerVideoChart');
+    if (commentsPerVideoCanvas) {
+        new Chart(commentsPerVideoCanvas, {
+            type: 'bar',
+            data: {
+                labels: commentsPerVideoBar.map(v => v.title),
+                datasets: [{
+                    label: 'Comments',
+                    data: commentsPerVideoBar.map(v => v.comments_count),
+                    backgroundColor: 'rgba(255, 193, 7, 0.7)',
+                }],
+            },
+            options: { plugins: { legend: { display: false } } }
+        });
+    }
+})();
 
-// Videos Per Category Chart
-const videosPerCategory = @json($videosPerCategory);
-new Chart(document.getElementById('videosPerCategoryChart'), {
-    type: 'bar',
-    data: {
-        labels: videosPerCategory.map(c => c.category.name),
-        datasets: [{
-            label: 'Videos',
-            data: videosPerCategory.map(c => c.total),
-            backgroundColor: 'rgba(54, 162, 235, 0.7)',
-        }],
-    },
-    options: { plugins: { legend: { display: false } } }
-});
-
-// Comments Per Video Chart
-const commentsPerVideo = @json($commentsPerVideo);
-new Chart(document.getElementById('commentsPerVideoChart'), {
-    type: 'bar',
-    data: {
-        labels: commentsPerVideo.map(v => v.title),
-        datasets: [{
-            label: 'Comments',
-            data: commentsPerVideo.map(v => v.comments_count),
-            backgroundColor: 'rgba(255, 193, 7, 0.7)',
-        }],
-    },
-    options: { plugins: { legend: { display: false } } }
-});
+(function() {
+    // --- Uploads Distribution Pie Chart ---
+    const uploadsOverallPie = @json($uploadsOverallPerCountry ?? []);
+    const uploadsPieLabels = uploadsOverallPie.map(row => row.country);
+    const uploadsPieData = uploadsOverallPie.map(row => row.uploads);
+    const uploadsPieColors = uploadsPieLabels.map((_,i) => `hsl(${i*360/uploadsPieLabels.length},70%,60%)`);
+    const uploadsPieCanvas = document.getElementById('uploadsPieChart');
+    if (uploadsPieData.reduce((a,b) => a+b, 0) > 0 && uploadsPieCanvas) {
+        new Chart(uploadsPieCanvas, {
+            type: 'pie',
+            data: {
+                labels: uploadsPieLabels,
+                datasets: [{
+                    label: 'Uploads',
+                    data: uploadsPieData,
+                    backgroundColor: uploadsPieColors,
+                }],
+            },
+            options: { plugins: { legend: { display: true, position: 'bottom' } } }
+        });
+    }
+})();
 </script>
 @endsection

@@ -15,24 +15,28 @@
     </div>
     
     <div class="bg-white rounded-xl shadow-lg p-6">
-    <div class="mb-4 d-flex align-items-center justify-content-between">
-        <div style="display:flex; gap:0.5rem; align-items:center; width:100%; max-width:420px;">
-            <input type="text" id="video-search" class="form-control" style="max-width:320px; display:inline-block;" placeholder="Search for Videos...">
-            <button id="video-search-clear" type="button" class="btn btn-outline-secondary" style="height:38px; display:none;">Clear</button>
-            <button id="video-search-refresh" type="button" class="btn btn-outline-primary" style="height:38px; display:inline-flex; align-items:center; gap:0.3rem; border:2px solid #1677fa; border-radius:2rem; padding:0 1rem;">
-                <span class="d-none d-sm-inline">Refresh</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 1 0-.908-.418A6 6 0 1 0 8 2v1z"/>
-                  <path d="M8 1.5a.5.5 0 0 1 .5.5v3.707l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 5.707V2a.5.5 0 0 1 .5-.5z"/>
-                </svg>
-            </button>
-        </div>
+    <div class="mb-4" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+    <div style="display:flex; gap:0.5rem; align-items:center; flex:1 1 400px; min-width:280px;">
+        <input type="text" id="video-search" class="form-control" style="max-width:320px; display:inline-block;" placeholder="Search for Videos...">
+        <button id="video-search-clear" type="button" class="btn btn-outline-secondary" style="height:38px; display:none;">Clear</button>
+        <button id="video-search-refresh" type="button" class="btn btn-outline-primary" style="height:38px; display:inline-flex; align-items:center; gap:0.3rem; border:2px solid #1677fa; border-radius:2rem; padding:0 1rem;">
+            <span class="d-none d-sm-inline">Refresh</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 1 0-.908-.418A6 6 0 1 0 8 2v1z"/>
+              <path d="M8 1.5a.5.5 0 0 1 .5.5v3.707l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 5.707V2a.5.5 0 0 1 .5-.5z"/>
+            </svg>
+        </button>
     </div>
+    <div style="display:flex; align-items:center; gap:0.5rem; flex:0 0 auto;">
+        <input type="checkbox" id="show-today-only">
+        <label for="show-today-only" style="margin-bottom:0; font-size:0.98rem; cursor:pointer;">Only show today's uploads</label>
+    </div>
+</div>
         <div>
             <table class="min-w-full divide-y divide-gray-200" style="border-collapse: separate; border-spacing: 0; font-size:0.95rem;">
 
 
-                <thead class="bg-[#f8fafc]" style="display:table; width:100%; table-layout:fixed;">
+                <thead class="bg-[#f8fafc]">
                     <tr>
                         <th class="px-2 py-4 text-left text-xs text-gray-500 uppercase tracking-wider" style="width:3.5em; min-width:3.5em; max-width:3.5em; text-align:center; font-weight:700;">#</th>
                         <th class="px-4 py-4 text-left text-xs text-gray-500 uppercase tracking-wider" style="font-weight:700; width:70px; min-width:70px; max-width:70px;">Preview</th>
@@ -46,11 +50,11 @@
                         <th class="px-6 py-4 text-left text-xs text-gray-500 uppercase tracking-wider" style="font-weight:700;">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-100" style="display:block; max-height:400px; overflow-y:auto; width:100%;">
+                <tbody class="bg-white divide-y divide-gray-100">
                     @php $isOdd = false; @endphp
                     @forelse($videos as $video)
                         @php $isOdd = !$isOdd; @endphp
-                        <tr id="video-row-{{ $video->id }}" class="transition hover:bg-blue-50" style="border-bottom:1px solid #e5e7eb;{{ $isOdd ? 'background:#f9fafb;' : '' }} display:table; width:100%; table-layout:fixed;">
+                        <tr id="video-row-{{ $video->id }}" class="transition hover:bg-blue-50" style="border-bottom:1px solid #e5e7eb;{{ $isOdd ? 'background:#f9fafb;' : '' }}">
                             <td class="px-2 py-5 text-center align-middle" style="width:3.5em; min-width:3.5em; max-width:3.5em;">{{ $loop->iteration + ($videos->currentPage() - 1) * $videos->perPage() }}</td>
                             <td class="px-4 py-5 text-left align-middle" style="width:70px; min-width:70px; max-width:70px;">
                                 @if(!empty($video->preview_thumbnail))
@@ -59,7 +63,10 @@
     <div style="width:56px; height:36px; background:#e5e7eb; border-radius:0.4rem; display:flex; align-items:center; justify-content:center; color:#888; font-size:1.1rem;">—</div>
 @endif
                             </td>
-                            <td class="px-6 py-5 text-left align-middle">{{ $video->title }}</td>
+                            <td class="px-6 py-5 text-left align-middle">
+    @php $truncated = Str::limit($video->title, 15); @endphp
+    <span class="full-title-btn cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-700 px-2 py-1 rounded shadow-sm" data-title="{{ e($video->title) }}" title="Click to view full title">{{ $truncated }}</span>
+</td>
                             <td class="px-6 py-5 text-left align-middle">
     <button type="button" class="desc-btn bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded shadow-sm border border-blue-100" data-description="{{ $video->description ? e($video->description) : 'No description available' }}">Description</button>
 </td>
@@ -203,7 +210,7 @@
 </td>
                         </tr>
                     @empty
-                        <tr style="display:table; width:100%; table-layout:fixed;">
+                        <tr>
                             <td colspan="7" class="px-6 py-8 text-center text-gray-400" style="font-size:1.08rem;">No videos found.</td>
                         </tr>
                     @endforelse
@@ -540,8 +547,6 @@
             var row = document.getElementById('video-row-' + videoId);
             var modal = document.getElementById('delete-video-modal');
             var action = form.action;
-            var prevAlert = document.getElementById('video-delete-success');
-            if (prevAlert) prevAlert.remove();
             fetch(action, {
                 method: 'DELETE',
                 headers: {
@@ -552,12 +557,6 @@
             }).then(function(response) {
                 if (response.ok) {
                     if (row) row.remove();
-                    var alert = document.createElement('div');
-                    alert.id = 'video-delete-success';
-                    alert.className = 'alert alert-success';
-                    alert.innerHTML = '<i class="bi bi-check-circle me-2"></i>Video deleted successfully.';
-                    document.querySelector('.container').prepend(alert);
-                    setTimeout(function() { alert.remove(); }, 3500);
                     modal.style.display = 'none';
                 } else {
                     response.json().then(function(data) {
@@ -609,7 +608,7 @@
                 </div>
                 <div style="margin-bottom:0.8rem;">
                     <strong>Description:</strong>
-                    <div id="video-info-description" style="font-size:1.04rem; color:#222; white-space:pre-line;"></div>
+                    <div id="video-info-description" style="font-size:1.04rem; color:#222; white-space:pre-line; max-height:300px; overflow-y:auto;"></div>
                 </div>
                 <div style="margin-bottom:0.7rem;">
                     <strong>Upload Date:</strong> <span id="video-info-upload-date"></span><br/>
@@ -684,6 +683,69 @@
     };
     </script>
 
+    <!-- Full Title Modal -->
+    <div id="full-title-modal" style="display:none; position:fixed; z-index:100010; left:0; top:0; width:100vw; height:100vh; background:rgba(30,41,59,0.22); align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:1rem; max-width:420px; width:90vw; margin:auto; box-shadow:0 8px 32px rgba(0,0,0,0.19); padding:2rem 1.2rem 1.4rem 1.2rem; position:relative; text-align:left;">
+            <button id="full-title-modal-close" style="position:absolute; top:0.7rem; right:1.1rem; background:none; border:none; font-size:1.5rem; color:#888; cursor:pointer;">&times;</button>
+            <h4 style="font-weight:bold; font-size:1.2rem; margin-bottom:1rem; color:#1677fa;">Full Video Title</h4>
+            <div id="full-title-modal-content" style="font-size:1.05rem; color:#222; white-space:pre-line;"></div>
+        </div>
     </div>
-</div>
+    <script>
+    document.querySelectorAll('.full-title-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var modal = document.getElementById('full-title-modal');
+            var content = document.getElementById('full-title-modal-content');
+            content.textContent = btn.getAttribute('data-title');
+            modal.style.display = 'flex';
+        });
+    });
+    document.getElementById('full-title-modal-close').onclick = function() {
+        document.getElementById('full-title-modal').style.display = 'none';
+    };
+    document.getElementById('full-title-modal').onclick = function(e) {
+        if(e.target === this) this.style.display = 'none';
+    };
+    </script>
+    <script>
+    const showTodayOnlyCheckbox = document.getElementById('show-today-only');
+    const getToday = () => new Date().toISOString().slice(0, 10);
+    function updateTodayRowsAndNumbering() {
+        const checked = showTodayOnlyCheckbox.checked;
+        const today = getToday();
+        let visibleIndex = 0;
+        document.querySelectorAll('tbody tr').forEach(function(row) {
+            const uploadDateCell = row.querySelector('td:nth-child(8)');
+            const numCell = row.querySelector('td:nth-child(1)');
+            if (!uploadDateCell || !numCell) return;
+            const uploadDate = uploadDateCell.textContent.trim();
+            if (checked) {
+                if (uploadDate !== today) {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = '';
+                    visibleIndex++;
+                    if (visibleIndex > 999) {
+                        numCell.textContent = '999+';
+                    } else {
+                        numCell.textContent = visibleIndex;
+                    }
+                }
+            } else {
+                row.style.display = '';
+                // Restore original number from data attribute if present
+                if (numCell.dataset.originalNum) {
+                    numCell.textContent = numCell.dataset.originalNum;
+                }
+            }
+        });
+    }
+    // Store original numbers on page load
+    document.querySelectorAll('tbody tr').forEach(function(row) {
+        const numCell = row.querySelector('td:nth-child(1)');
+        if (numCell) numCell.dataset.originalNum = numCell.textContent.trim();
+    });
+    showTodayOnlyCheckbox.addEventListener('change', updateTodayRowsAndNumbering);
+    </script>
+    </div>
 @endsection

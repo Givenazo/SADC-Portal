@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-
+        $this->call(SubscriptionSeeder::class);
         // Always create or fetch the Admin role
         $adminRole = Role::firstOrCreate(['name' => 'Admin']);
         // Only create admin user if not exists

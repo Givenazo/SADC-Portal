@@ -37,12 +37,7 @@
     }
 </style>
 <div class="container py-4">
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+
     <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold text-success mb-0">My Uploaded Videos</h2>
     <div style="max-width:300px;" class="ms-3">

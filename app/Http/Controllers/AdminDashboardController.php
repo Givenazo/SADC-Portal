@@ -13,6 +13,35 @@ use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
 {
+    public function saveSubscriptionPayment(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+        ]);
+        $subscription = \App\Models\Subscription::find($validated['id']);
+        if (!$subscription) {
+            return response()->json(['success' => false, 'message' => 'Subscription not found'], 404);
+        }
+        $subscription->start_date = $validated['start_date'];
+        $subscription->end_date = $validated['end_date'];
+        $subscription->status = 'Active';
+        $subscription->payment_status = 'paid';
+        $subscription->save();
+        // Calculate updated revenue stats
+        $paidCount = Subscription::where('payment_status', 'paid')->count();
+        $unpaidCount = Subscription::where('payment_status', '!=', 'paid')->count();
+        $totalSubs = $paidCount + $unpaidCount;
+        $paidPercentage = $totalSubs > 0 ? round(($paidCount / $totalSubs) * 100, 1) : 0;
+        return response()->json([
+            'success' => true,
+            'paidCount' => $paidCount,
+            'unpaidCount' => $unpaidCount,
+            'paidPercentage' => $paidPercentage
+        ]);
+    }
+
     public function index()
     {
         \Log::info('AdminDashboardController@index user', [
@@ -78,6 +107,14 @@ class AdminDashboardController extends Controller
                 'uploads' => (int) ($uploadsToday[$country->id]->uploads ?? 0),
             ];
         });
+        // Overall uploads per country (for pie chart)
+        $uploadsOverallPerCountry = $allCountries->map(function ($country) {
+            $uploads = $country->videos()->where('status', 'Published')->count();
+            return [
+                'country' => $country->name,
+                'uploads' => $uploads,
+            ];
+        });
 
         // Total videos per category
         $videosPerCategory = Video::select('category_id', DB::raw('count(*) as total'))
@@ -103,6 +140,7 @@ class AdminDashboardController extends Controller
         $subscriptions = $allCountries->map(function ($country) use ($subscriptionsRaw) {
             $sub = $subscriptionsRaw->firstWhere('country_id', $country->id);
             return (object) [
+                'id' => $sub->id ?? ('country_' . $country->id),
                 'country' => $country,
                 'status' => $sub->status ?? 'No Data',
                 'payment_status' => $sub->payment_status ?? 'No Data',
@@ -122,6 +160,14 @@ class AdminDashboardController extends Controller
             ->select('uploaded_by', DB::raw('count(*) as uploads'))
             ->groupBy('uploaded_by')
             ->orderByDesc('uploads')
+            ->with('uploader:id,name')
+            ->first();
+
+        // Boomer of the Month (user with the least uploads this month, but at least 1)
+        $boomerOfMonth = Video::whereMonth('upload_date', Carbon::now()->month)
+            ->select('uploaded_by', DB::raw('count(*) as uploads'))
+            ->groupBy('uploaded_by')
+            ->orderBy('uploads', 'asc')
             ->with('uploader:id,name')
             ->first();
 
@@ -156,32 +202,52 @@ class AdminDashboardController extends Controller
         $subscriptions = $subscriptions ?? collect();
 
         // Most Active Uploader by Country (for table)
-        $uploadsByCountry = \App\Models\Country::withCount(['videos' => function($query) {
+        // For each country, get uploads and downloads (downloads = total downloads of videos uploaded by members from that country this month)
+        $uploadsByCountry = \App\Models\Country::with(['videos' => function($query) {
             $query->whereMonth('upload_date', \Carbon\Carbon::now()->month);
         }])->get()->map(function($country) {
+            $videoIds = $country->videos->pluck('id');
+            $downloads = 0;
+            if ($videoIds->count()) {
+                $downloads = \DB::table('audit_logs')
+                    ->where('action_type', 'download')
+                    ->whereIn('details', $videoIds)
+                    ->count();
+            }
             return [
                 'name' => $country->name,
-                'uploads' => $country->videos_count
+                'uploads' => $country->videos->count(),
+                'downloads' => $downloads
             ];
-        });
+        })->sortByDesc('uploads')->values();
 
-        return view('admin.dashboard', [
-            'uploadsPerCountryChart' => $uploadsPerCountryChart,
-            'downloadsPerVideoChart' => $downloadsPerVideoChart,
-            'countryStatusChart' => $countryStatusChart,
-            'uploadsPerCountry' => $uploadsPerCountry,
-            'videosPerCategory' => $videosPerCategory,
-            'commentsPerVideo' => $commentsPerVideo,
-            'overdueCountries' => $overdueCountries,
-            'subscriptions' => $subscriptions,
-            'mostDownloadedVideo' => $mostDownloadedVideo,
-            'breakingNews' => $breakingNews,
-            'activeUser' => $activeUser,
-            'mostCommentedVideo' => $mostCommentedVideo,
-            'uploadsByCountry' => $uploadsByCountry,
-            'mostActiveUploader' => $mostActiveUploader,
-        ]);
-// Removed stray ->first();
+        // Revenue Streams: calculate percentage of paid subscriptions
+        $paidCount = $subscriptions->where('payment_status', 'paid')->count();
+        $unpaidCount = $subscriptions->where('payment_status', '!=', 'paid')->count();
+        $totalSubs = $paidCount + $unpaidCount;
+        $paidPercentage = $totalSubs > 0 ? round(($paidCount / $totalSubs) * 100, 1) : 0;
+        // --- All data prep above ---
+        return view('admin.dashboard', compact(
+            'uploadsPerCountryChart',
+            'downloadsPerVideoChart',
+            'countryStatusChart',
+            'uploadsPerCountry',
+            'videosPerCategory',
+            'commentsPerVideo',
+            'overdueCountries',
+            'subscriptions',
+            'mostDownloadedVideo',
+            'breakingNews',
+            'activeUser',
+            'mostCommentedVideo',
+            'uploadsTodayPerCountry',
+            'uploadsByCountry',
+            'boomerOfMonth',
+            'paidCount',
+            'unpaidCount',
+            'paidPercentage',
+            'uploadsOverallPerCountry',
+        ));
 
         // Most Commented Video
         $mostCommentedVideo = Video::withCount('comments')
@@ -222,6 +288,7 @@ class AdminDashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'uploadsPerCountry',
+            'uploadsTodayPerCountry',
             'videosPerCategory',
             'commentsPerVideo',
             'overdueCountries',

@@ -33,9 +33,7 @@
         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
             {{ __('Member Dashboard') }}
         </x-nav-link>
-        <x-nav-link href="#" data-bs-toggle="modal" data-bs-target="#uploadVideoModal">
-            <i class="bi bi-upload me-1"></i>{{ __('Upload a Video') }}
-        </x-nav-link>
+        
         <x-nav-link :href="route('videos.index')" :active="request()->routeIs('videos.index')">
             {{ __('My Uploads') }}
         </x-nav-link>

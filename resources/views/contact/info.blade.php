@@ -22,16 +22,17 @@
     border-radius: 16px;
     box-shadow: 0 2px 12px 0 rgba(44,62,80,0.08);
     transition: box-shadow 0.2s;
-    padding: 32px 12px 24px 12px;
-    min-height: 260px;
+    padding: 22px 8px 18px 8px;
+    min-height: 220px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin-bottom: 0;
   }
   .info-card .icon {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
+    font-size: 2.1rem;
+    margin-bottom: 4px;
   }
   .info-card h6 {
     font-size: 1.1rem;
@@ -53,7 +54,7 @@
   }
 </style>
 <div class="container py-4">
-  <div class="row g-4 mb-4">
+  <div class="row g-2 mb-2">
     <div class="col-lg-3 col-md-6">
       <div class="info-card">
         <i class="bi bi-info-circle-fill icon about"></i>

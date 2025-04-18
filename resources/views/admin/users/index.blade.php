@@ -12,9 +12,16 @@
   <span class="text-gray-600 text-lg" style="font-size:1.15rem;display:block;margin-top:0;text-align:center;margin-left:1cm;">Manage all users of the SADC News Portal.</span>
 </div>
 <div class="d-flex justify-content-end align-items-center mb-4" style="gap:0.15rem;">
-  <form method="GET" action="" class="flex items-center" style="min-width:200px;max-width:300px;">
+  <form method="GET" action="" class="flex items-center" style="min-width:200px;max-width:420px;gap:0.4rem;">
     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search users..." class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm" />
-    <button type="submit" class="px-3 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700 text-sm"><i class="bi bi-search text-blue-100" style="color:#2563eb;"></i></button>
+    <button type="submit" class="px-3 py-2 bg-blue-600 text-white rounded-none hover:bg-blue-700 text-sm" style="border-top-right-radius:0.375rem; border-bottom-right-radius:0.375rem;"><i class="bi bi-search text-blue-100" style="color:#2563eb;"></i></button>
+    <button id="user-search-refresh" type="button" class="btn btn-outline-primary" style="height:38px; display:inline-flex; align-items:center; gap:0.3rem; border:2px solid #1677fa; border-radius:2rem; padding:0 1rem; margin-left:0.4rem;">
+      <span class="d-none d-sm-inline">Refresh</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 1 0-.908-.418A6 6 0 1 0 8 2v1z"/>
+        <path d="M8 1.5a.5.5 0 0 1 .5.5v3.707l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 5.707V2a.5.5 0 0 1 .5-.5z"/>
+      </svg>
+    </button>
   </form>
   <a href="#" id="addUserBtn"
      class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -41,7 +48,7 @@
     </tr>
 </thead>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-100" style="display:block; max-height:400px; overflow-y:auto; width:100%;">
+            <tbody id="usersTableBody" class="bg-white divide-y divide-gray-100" style="display:block; max-height:400px; overflow-y:auto; width:100%;">
 @php $isOdd = false; @endphp
 @if(count($users))
     @foreach($users as $user)
@@ -141,7 +148,7 @@
         <button type="submit" id="addUserSubmitBtn" style="background:#2563eb;color:#fff;font-weight:bold;border-radius:0.375rem;padding:0.5rem 1.2rem;font-size:1rem;">Add User</button>
       </div>
     </form>
-    <div id="addUserSuccessMsg" style="display:none;color:#22c55e;font-weight:bold;margin-top:1rem;text-align:center;">User added successfully!</div>
+    
   </div>
 </div>
 <script>
@@ -172,9 +179,7 @@ addUserForm.onsubmit = function(e) {
   }
   addUserSubmitBtn.disabled = true;
 };
-@if(session('success'))
-document.getElementById('addUserSuccessMsg').style.display = 'block';
-@endif
+
 </script>
 
 <!-- Suspend/Activate User Modal -->
@@ -327,4 +332,5 @@ document.querySelectorAll('.view-user-btn').forEach(btn => {
 </div>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
+<script src="/js/admin-users-live-search.js"></script>
 @endsection

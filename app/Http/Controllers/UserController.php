@@ -23,6 +23,10 @@ class UserController extends Controller
             })
             ->orderBy('name')
             ->get();
+        if ($request->ajax() || $request->input('ajax') == '1') {
+            // Return only the tbody rows for AJAX
+            return response()->view('admin.users.partials.tbody', compact('users'));
+        }
         return view('admin.users.index', compact('users', 'search'));
     }
 
