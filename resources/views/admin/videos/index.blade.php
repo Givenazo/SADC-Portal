@@ -65,7 +65,7 @@
                             </td>
                             <td class="px-6 py-5 text-left align-middle">
     @php $truncated = Str::limit($video->title, 15); @endphp
-    <span class="full-title-btn cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-700 px-2 py-1 rounded shadow-sm" data-title="{{ e($video->title) }}" title="Click to view full title">{{ $truncated }}</span>
+    <span class="full-title-btn" data-title="{{ e($video->title) }}" title="View full title" style="color:#222; background:none; cursor:default; padding:0; border-radius:0; font-weight:400; box-shadow:none;">{{ $truncated }}</span>
 </td>
                             <td class="px-6 py-5 text-left align-middle">
     <button type="button" class="desc-btn bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded shadow-sm border border-blue-100" data-description="{{ $video->description ? e($video->description) : 'No description available' }}">Description</button>
@@ -139,11 +139,24 @@
     </style>
     <style>
     .action-icons-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 0.3em 0.3em;
+    justify-items: center;
     align-items: center;
+    max-width: 10em;
+    margin: 0 auto;
+}
+.action-icons-row .action-icon-btn {
+    width: 2.6em;
+    height: 2.6em;
+    display: flex;
     justify-content: center;
-    gap: 0.12rem;
-    flex-wrap: wrap;
+    align-items: center;
+    text-align: center;
+    margin: 0.12em;
+    padding: 0;
 }
     .action-icon-btn {
     position: relative;
@@ -185,7 +198,8 @@
         transform: translateX(-50%) translateY(-0.25rem);
     }
 </style>
-<div class="action-icons-row">
+<div class="action-icons-row" style="">
+
     <a href="#" class="action-icon-btn text-blue-600 hover:bg-blue-50 video-info-btn" tabindex="0"
     data-title="{{ e($video->title) }}"
     data-description="{{ e($video->description) }}"
