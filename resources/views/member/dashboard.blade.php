@@ -48,15 +48,13 @@
             <a href="{{ route('videos.index') }}" class="btn btn-outline-success btn-lg me-2 sadc-header-darkblue">
     <i class="bi bi-collection-play"></i> My Uploads
 </a>
-<a href="#" class="btn btn-outline-secondary btn-lg me-2 sadc-header-darkblue">
+<a href="#active-videos" class="btn btn-outline-secondary btn-lg me-2 sadc-header-darkblue">
     <i class="bi bi-play-circle"></i> Uploaded Videos
 </a>
-            <a href="{{ route('videos.create') }}" class="btn btn-outline-primary btn-lg me-2 sadc-header-darkblue">
-                <i class="bi bi-upload"></i> Upload a Video
-            </a>
-            <a href="{{ route('news.create') }}" class="btn btn-outline-info btn-lg sadc-header-darkblue">
-                <i class="bi bi-newspaper"></i> Add News
-            </a>
+
+            <span class="btn btn-outline-info btn-lg sadc-header-darkblue disabled" style="pointer-events: none; opacity: 0.6;">
+    <i class="bi bi-newspaper"></i> Add News
+</span>
         </div>
     </h1>
     <div class="alert alert-info mb-4">
@@ -103,7 +101,7 @@
 
 
 @if(isset($activeVideos) && $activeVideos->count())
-<div class="container mb-5">
+<div id="active-videos" class="container mb-5">
     <div class="d-flex align-items-center justify-content-between mt-5 mb-3">
   <h3 class="fw-bold text-primary mb-0">Active Videos</h3>
   <div style="max-width:260px; width:100%;">
@@ -120,7 +118,12 @@
                     <th>Uploader</th>
                     <th>Upload Date</th>
                     <th>Expiry Date</th>
-                    <th>Actions</th>
+                    <th class="text-end" style="min-width:180px;">
+    <div class="d-flex justify-content-end align-items-center" style="gap:0.5rem;">
+        <label for="show-today-only" class="mb-0" style="font-size:0.98rem; cursor:pointer;">Only show today's uploads</label>
+        <input type="checkbox" id="show-today-only" style="margin-left:0.25em;">
+    </div>
+</th>
                 </tr>
             </thead>
             <tbody>
@@ -292,6 +295,33 @@ document.addEventListener('DOMContentLoaded', function () {
                 @endforeach
             </tbody>
         </table>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('show-today-only');
+    if (!checkbox) return;
+    checkbox.addEventListener('change', function() {
+        const today = new Date();
+        const month = today.toLocaleString('en-US', { month: 'short' });
+        const day = today.getDate(); // NOT zero-padded
+        const year = today.getFullYear();
+        const todayFormatted = `${month} ${day}, ${year}`;
+        document.querySelectorAll('#active-videos tbody tr').forEach(function(row) {
+            const uploadDateCell = row.querySelector('td:nth-child(6)');
+            if (!uploadDateCell) return;
+            const uploadDate = uploadDateCell.textContent.trim();
+            if (checkbox.checked) {
+                if (uploadDate !== todayFormatted) {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = '';
+                }
+            } else {
+                row.style.display = '';
+            }
+        });
+    });
+});
+</script>
     </div>
     <!-- Pagination and per-page selector -->
     <div class="d-flex align-items-center justify-content-between flex-wrap mt-2">
