@@ -30,7 +30,7 @@
                 </div>
             </div>
         @empty
-            <div class="col-12">
+            <div class="col-12 no-news-viewport-center">
                 <div class="d-flex justify-content-center align-items-center" style="min-height:340px;">
                   <div class="card shadow-sm p-4" style="max-width:520px;width:100%;background:#f9fafb;border-radius:1rem;">
                     <div class="d-flex align-items-center mb-3">

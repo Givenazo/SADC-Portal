@@ -2,3 +2,10 @@
 .sadc-header-darkblue {
     color: #083766 !important;
 }
+
+.no-news-viewport-center {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
