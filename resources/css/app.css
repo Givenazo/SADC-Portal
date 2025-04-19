@@ -1,3 +1,128 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #3b82f6;
+    --accent-color: #60a5fa;
+    --success-color: #22c55e;
+    --warning-color: #eab308;
+    --danger-color: #ef4444;
+    --background-light: #f8fafc;
+    --background-dark: #1e293b;
+    --text-light: #f8fafc;
+    --text-dark: #1e293b;
+}
+
+/* Modern Card Styles */
+.modern-card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300 hover:shadow-xl;
+}
+
+/* Dashboard Grid Layout */
+.dashboard-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+}
+
+/* Modern Button Styles */
+.btn-primary {
+    @apply px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-300;
+}
+
+.btn-secondary {
+    @apply px-4 py-2 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 transition-colors duration-300;
+}
+
+/* Modern Form Controls */
+.form-input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+}
+
+/* Modern Table Styles */
+.modern-table {
+    @apply min-w-full divide-y divide-gray-200 dark:divide-gray-700;
+}
+
+.modern-table th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.modern-table td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100;
+}
+
+/* Animation Classes */
+.fade-in {
+    @apply opacity-0 animate-[fadeIn_0.3s_ease-in-out_forwards];
+}
+
+.slide-up {
+    @apply translate-y-4 opacity-0 animate-[slideUp_0.3s_ease-in-out_forwards];
+}
+
+/* Responsive Navigation */
+.nav-link {
+    @apply px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 hover:text-white transition-colors duration-200;
+}
+
+/* Modern Stats Card */
+.stats-card {
+    @apply flex flex-col p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg;
+}
+
+.stats-value {
+    @apply text-3xl font-bold text-gray-900 dark:text-white;
+}
+
+.stats-label {
+    @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+/* Video Grid */
+.video-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+}
+
+.video-card {
+    @apply relative overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105;
+}
+
+/* News Card */
+.news-card {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl;
+}
+
+/* Profile Section */
+.profile-header {
+    @apply relative bg-gradient-to-r from-primary-600 to-secondary-600 py-16;
+}
+
+.profile-avatar {
+    @apply w-32 h-32 rounded-full border-4 border-white shadow-xl;
+}
+
+/* Admin Dashboard Components */
+.admin-stat-card {
+    @apply flex items-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg space-x-4;
+}
+
+.admin-chart-container {
+    @apply bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        transform: translateY(1rem);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

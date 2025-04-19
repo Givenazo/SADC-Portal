@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -24,11 +25,20 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::define('isAdmin', function ($user) {
-            \Log::info('isAdmin gate check', [
+            $isAdmin = $user->role && $user->role->name === 'Admin';
+            
+            Log::info('isAdmin gate check', [
                 'user_id' => $user->id,
-                'role' => $user->role ? $user->role->name : null
+                'user_email' => $user->email,
+                'role_id' => $user->role_id,
+                'role_relation_exists' => isset($user->role),
+                'role_name' => $user->role ? $user->role->name : null,
+                'is_admin_result' => $isAdmin,
+                'request_path' => request()->path(),
+                'request_method' => request()->method()
             ]);
-            return $user->role && $user->role->name === 'Admin';
+            
+            return $isAdmin;
         });
     }
 }

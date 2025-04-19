@@ -139,6 +139,20 @@ class VideoController extends Controller
     }
 
     /**
+     * Show the form for editing the specified video.
+     */
+    public function edit(Video $video)
+    {
+        // Check if user has permission to edit
+        if ($video->uploaded_by !== auth()->id()) {
+            return redirect()->route('videos.index')->with('error', 'You do not have permission to edit this video.');
+        }
+
+        $categories = \App\Models\Category::all();
+        return view('videos.edit', compact('video', 'categories'));
+    }
+
+    /**
      * Update a video uploaded by the authenticated user.
      */
     public function update(Request $request, $id)
@@ -187,5 +201,32 @@ class VideoController extends Controller
 
         $video->save();
         return redirect()->route('videos.index');
+    }
+
+    /**
+     * Display the specified video.
+     */
+    public function show(Video $video)
+    {
+        return view('videos.show', compact('video'));
+    }
+
+    /**
+     * Store a new comment for the video.
+     */
+    public function comment(Request $request, Video $video)
+    {
+        $validated = $request->validate([
+            'comment' => 'required|string|max:1000'
+        ]);
+
+        $comment = $video->comments()->create([
+            'comment' => $validated['comment'],
+            'user_id' => auth()->id(),
+            'video_id' => $video->id,
+            'created_at' => now()
+        ]);
+
+        return redirect()->back()->with('success', 'Comment posted successfully.');
     }
 }

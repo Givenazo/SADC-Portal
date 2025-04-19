@@ -101,10 +101,13 @@ Route::get('/contact-info', [\App\Http\Controllers\ContactController::class, 'in
     Route::get('/videos/create', [\App\Http\Controllers\VideoController::class, 'create'])->name('videos.create');
     Route::post('/videos', [\App\Http\Controllers\VideoController::class, 'store'])->name('videos.store');
     Route::get('/videos', [\App\Http\Controllers\VideoController::class, 'index'])->name('videos.index');
-    Route::get('/news/create', [\App\Http\Controllers\NewsController::class, 'create'])->name('news.create');
-    Route::post('/news', [\App\Http\Controllers\NewsController::class, 'store'])->name('news.store');
+    Route::get('/videos/{video}', [\App\Http\Controllers\VideoController::class, 'show'])->name('videos.show');
+    Route::get('/videos/{video}/edit', [\App\Http\Controllers\VideoController::class, 'edit'])->name('videos.edit');
     Route::put('/videos/{id}', [\App\Http\Controllers\VideoController::class, 'update'])->name('videos.update');
     Route::delete('/videos/{id}', [\App\Http\Controllers\VideoController::class, 'destroy'])->name('videos.destroy');
+    Route::post('/videos/{video}/comment', [\App\Http\Controllers\VideoController::class, 'comment'])->name('videos.comment');
+    Route::get('/news/create', [\App\Http\Controllers\NewsController::class, 'create'])->name('news.create');
+    Route::post('/news', [\App\Http\Controllers\NewsController::class, 'store'])->name('news.store');
 });
 
 // Password reset (uses Laravel's default auth scaffolding)
@@ -113,18 +116,23 @@ Route::get('/contact-info', [\App\Http\Controllers\ContactController::class, 'in
 // Route::get('password/reset/{token}', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
 // Route::post('password/reset', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
 
-// News CRUD routes
-Route::get('/news', [\App\Http\Controllers\NewsController::class, 'index'])->name('news.index'); // Public homepage
-Route::get('/news/{news}', [\App\Http\Controllers\NewsController::class, 'show'])->name('news.show');
+// Public news routes
+Route::get('/news', [App\Http\Controllers\NewsController::class, 'index'])->name('news.index');
+Route::get('/news/{news}', [App\Http\Controllers\NewsController::class, 'show'])->name('news.show');
 
-Route::middleware(['auth', 'verified', 'can:isAdmin'])->group(function () {
-    Route::get('/admin/news/create', [\App\Http\Controllers\NewsController::class, 'create'])->name('news.create');
-    Route::post('/admin/news', [\App\Http\Controllers\NewsController::class, 'store'])->name('news.store');
-    Route::get('/admin/news/{news}/edit', [\App\Http\Controllers\NewsController::class, 'edit'])->name('news.edit');
-    Route::put('/admin/news/{news}', [\App\Http\Controllers\NewsController::class, 'update'])->name('news.update');
-    Route::delete('/admin/news/{news}', [\App\Http\Controllers\NewsController::class, 'destroy'])->name('news.destroy');
+// Protected news routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware('can:isAdmin')->group(function () {
+        Route::get('/news/create', [App\Http\Controllers\NewsController::class, 'create'])->name('news.create');
+        Route::post('/news', [App\Http\Controllers\NewsController::class, 'store'])->name('news.store');
+        Route::get('/news/{news}/edit', [App\Http\Controllers\NewsController::class, 'edit'])->name('news.edit');
+        Route::put('/news/{news}', [App\Http\Controllers\NewsController::class, 'update'])->name('news.update');
+        Route::delete('/news/{news}', [App\Http\Controllers\NewsController::class, 'destroy'])->name('news.destroy');
+    });
 });
 
 Route::post('/contact/submit', [App\Http\Controllers\ContactController::class, 'submit'])->name('contact.submit');
+
+Route::post('/newsletter/subscribe', [App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 require __DIR__.'/auth.php';

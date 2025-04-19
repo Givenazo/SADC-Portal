@@ -1,307 +1,277 @@
 @extends('layouts.app')
 
 @section('content')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-<style>
-    .video-card {
-        border-radius: 0.7rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        transition: transform 0.12s;
-        overflow: hidden;
-        padding: 0.6rem 0.6rem 0.2rem 0.6rem;
-        min-height: 270px;
-    }
-    .video-card:hover {
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 4px 28px rgba(0,0,0,0.10);
-    }
-    .video-thumb {
-        width: 100%;
-        height: 110px;
-        object-fit: cover;
-        background: #e9ecef;
-        border-radius: 0.5rem;
-    }
-    .video-title {
-        font-size: 0.97rem;
-        font-weight: 600;
-        color: #185a9d;
-        margin-bottom: 0.18rem;
-        line-height: 1.15;
-    }
-    .video-meta {
-        color: #6c757d;
-        font-size: 0.85rem;
-        margin-bottom: 0.15rem;
-    }
-</style>
-<div class="container py-4">
+<!-- Add Bootstrap CSS and JS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold text-success mb-0">My Uploaded Videos</h2>
-    <div style="max-width:300px;" class="ms-3">
-        <input type="text" id="videoSearchInput" class="form-control" placeholder="Search videos...">
-    </div>
-</div>
-    @if($videos->count())
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-            @foreach($videos as $video)
-                <div class="col-md-6 col-lg-4 video-row" id="video-row-{{ $video->id }}">
-                    <div class="card video-card h-100">
-                        @if($video->preview_thumbnail)
-                            <img src="{{ asset('storage/' . $video->preview_thumbnail) }}" class="video-thumb" alt="Thumbnail">
-                        @else
-                            <div class="video-thumb d-flex align-items-center justify-content-center text-muted">
-                                <i class="bi bi-camera-video" style="font-size:2.5rem;"></i>
-                            </div>
-                        @endif
-                        <div class="card-body">
-                            <div class="video-title">{{ $video->title }}</div>
-                            <div class="video-meta mb-2">Uploaded: {{ \Carbon\Carbon::parse($video->upload_date)->format('M d, Y') }}</div>
-                            <div class="video-meta">Status: <span class="badge bg-{{ $video->status == 'Published' ? 'success' : ($video->status == 'Blocked' ? 'danger' : 'secondary') }}">{{ $video->status }}</span></div>
-                        </div>
-                        <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center p-2 pt-1">
-                            <button type="button" class="btn btn-outline-primary btn-xs px-2 py-1" style="font-size:0.85rem;" data-bs-toggle="modal" data-bs-target="#modal-video-{{ $video->id }}">
-    <i class="bi bi-eye"></i> View
-</button>
-                            <button type="button" class="btn btn-outline-secondary btn-xs px-2 py-1 edit-video-btn" style="font-size:0.85rem;" 
-    data-bs-toggle="modal" 
-    data-bs-target="#editVideoModal"
-    data-id="{{ $video->id }}"
-    data-title="{{ htmlspecialchars($video->title, ENT_QUOTES) }}"
-    data-description="{{ htmlspecialchars($video->description, ENT_QUOTES) }}"
-    data-category="{{ $video->category_id }}"
-    data-thumbnail="{{ $video->preview_thumbnail ? asset('storage/' . $video->preview_thumbnail) : '' }}">
-    <i class="bi bi-pencil"></i> Edit
-</button>
-                            <form action="{{ route('videos.destroy', $video->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this video?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-outline-danger btn-xs px-2 py-1" style="font-size:0.85rem;"><i class="bi bi-trash"></i> Delete</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-
-            {{-- Video Play Modals --}}
-            @foreach($videos as $video)
-                <div class="modal fade" id="modal-video-{{ $video->id }}" tabindex="-1" aria-labelledby="modalLabel-{{ $video->id }}" aria-hidden="true">
-                  <div class="modal-dialog modal-lg modal-dialog-centered">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="modalLabel-{{ $video->id }}">{{ $video->title }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <div class="modal-body">
-                        <video width="100%" height="auto" controls poster="{{ $video->preview_thumbnail ? asset('storage/' . $video->preview_thumbnail) : '' }}">
-                          <source src="{{ asset('storage/' . $video->video_path) }}" type="video/mp4">
-                          Your browser does not support the video tag.
-                        </video>
-                        <div class="mt-3">
-                          <strong>Description:</strong> {{ $video->description }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-            @endforeach
+<div class="min-h-screen bg-gray-100">
+    <div class="container mx-auto py-8 px-4">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="flex items-center justify-center text-3xl font-bold text-[#003366] mb-2">
+                <i class="bi bi-play-circle-fill me-2 text-4xl"></i>
+                My Uploads
+            </h1>
+            <p class="text-gray-600">
+                Manage all videos you have access to on the SADC News Portal.
+            </p>
         </div>
-        <div class="d-flex justify-content-center mt-5 mb-4">
-    {{ $videos->links() }}
-</div>
-    @else
-        <div class="alert alert-info">You haven't uploaded any videos yet.</div>
-    @endif
-</div>
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteVideoModal" tabindex="-1" aria-labelledby="deleteVideoModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title text-danger" id="deleteVideoModalLabel"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Deletion</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to delete this video? This will also remove associated script and voiceover files if they exist.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteVideo">Delete</button>
-      </div>
-    </div>
-  </div>
-</div>
-<div id="video-delete-alerts"></div>
 
-<script>
-let deleteVideoId = null;
-let deleteVideoUrl = null;
+        <!-- Search and Actions Bar -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <!-- Search -->
+                <div class="flex-grow max-w-xl">
+                    <input type="text" 
+                           id="searchInput"
+                           placeholder="Search videos..." 
+                           class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
 
-// Show modal on delete button click
-Array.from(document.querySelectorAll('.delete-video-btn')).forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        deleteVideoId = btn.getAttribute('data-video-id');
-        deleteVideoUrl = btn.getAttribute('data-delete-url');
-        var modal = new bootstrap.Modal(document.getElementById('deleteVideoModal'));
-        modal.show();
-    });
-});
-
-// Confirm delete
-const confirmBtn = document.getElementById('confirmDeleteVideo');
-if (confirmBtn) {
-    confirmBtn.addEventListener('click', function() {
-        if (!deleteVideoId || !deleteVideoUrl) return;
-        fetch(deleteVideoUrl, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            },
-        }).then(function(response) {
-            if (response.ok) {
-                // Remove card
-                const row = document.getElementById('video-row-' + deleteVideoId);
-                if (row) row.remove();
-                showAlert('Video and associated resources deleted successfully.', 'success');
-            } else {
-                response.json().then(function(data) {
-                    showAlert(data.message || 'Failed to delete video or associated files.', 'danger');
-                }).catch(function() {
-                    showAlert('Failed to delete video or associated files.', 'danger');
-                });
-            }
-        }).catch(function() {
-            showAlert('Failed to delete video or associated files.', 'danger');
-        });
-        var modalEl = document.getElementById('deleteVideoModal');
-        var modal = bootstrap.Modal.getInstance(modalEl);
-        modal.hide();
-    });
-}
-
-function showAlert(msg, type) {
-    const alerts = document.getElementById('video-delete-alerts');
-    if (!alerts) return;
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
-    alert.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${msg}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-    alerts.appendChild(alert);
-    setTimeout(() => { alert.remove(); }, 4000);
-}
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('videoSearchInput');
-    if (!searchInput) return;
-    searchInput.addEventListener('input', function() {
-        const query = searchInput.value.toLowerCase();
-        document.querySelectorAll('.video-row').forEach(function(row) {
-            const text = row.innerText.toLowerCase();
-            if (text.includes(query)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    });
-});
-</script>
-<!-- Edit Video Modal -->
-<div class="modal fade" id="editVideoModal" tabindex="-1" aria-labelledby="editVideoModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editVideoModalLabel"><i class="bi bi-pencil-square"></i> Edit Video</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="editVideoForm" method="POST" enctype="multipart/form-data" action="">
-  @csrf
-  @method('PUT')
-  <input type="hidden" name="video_id" id="edit-video-id">
-          <div class="mb-3">
-            <label for="edit-title" class="form-label">Title</label>
-            <input type="text" class="form-control" id="edit-title" name="title" required>
-          </div>
-          <div class="mb-3">
-            <label for="edit-description" class="form-label">Description</label>
-            <textarea class="form-control" id="edit-description" name="description" rows="2" required></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="edit-category" class="form-label">Category</label>
-            <select class="form-control" id="edit-category" name="category_id" required>
-    @foreach($categories as $category)
-      <option value="{{ $category->id }}">{{ $category->name }}</option>
-    @endforeach
-</select>
-          </div>
-          <div class="mb-3">
-            <label for="edit-video_file" class="form-label">Video File (MP4, AVI, MOV, WMV)</label>
-            <input type="file" class="form-control" id="edit-video_file" name="video_file" accept="video/mp4,video/avi,video/mov,video/wmv">
-            <div class="form-text" id="edit-video-file-name"></div>
-          </div>
-          <div class="mb-3">
-            <label for="edit-script_file" class="form-label">Script/Transcript File (PDF, DOC, DOCX, TXT)</label>
-            <input type="file" class="form-control" id="edit-script_file" name="script_file" accept=".pdf,.doc,.docx,.txt">
-            <div class="form-text" id="edit-script-file-name"></div>
-          </div>
-          <div class="mb-3">
-            <label for="edit-voiceover_file" class="form-label">Voiceover File (MP3, WAV) <span class="text-muted small">(optional)</span></label>
-            <input type="file" class="form-control" id="edit-voiceover_file" name="voiceover_file" accept="audio/mp3,audio/wav">
-            <div class="form-text" id="edit-voiceover-file-name"></div>
-          </div>
-          <div class="mb-3">
-            <label for="edit-preview_thumbnail" class="form-label">Preview Thumbnail (optional)</label>
-            <div id="edit-thumbnail-preview-wrapper" style="margin-bottom:0.7rem;">
-              <img id="edit-thumbnail-preview-img" src="https://placehold.co/120x80?text=No+Image" alt="Thumbnail Preview" style="width:120px;height:80px;object-fit:cover;border-radius:0.5rem;background:#f3f4f6;display:block;" />
+                <!-- Upload Button -->
+                @auth
+                <a href="{{ route('videos.create') }}" class="inline-flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="bi bi-plus-lg me-2"></i>
+                    Upload Video
+                </a>
+                @endauth
             </div>
-            <input type="file" class="form-control" id="edit-preview_thumbnail" name="preview_thumbnail" accept="image/*">
-          </div>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
-      </div>
+        </div>
+
+        <!-- Videos Table -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="px-4 py-3 text-center" style="width: 50px">#</th>
+                            <th class="px-4 py-3 text-left" style="width: 120px">Thumbnail</th>
+                            <th class="px-6 py-3 text-left">Title</th>
+                            <th class="px-6 py-3 text-left">Description</th>
+                            <th class="px-6 py-3 text-left">Uploader</th>
+                            <th class="px-6 py-3 text-left">Country</th>
+                            <th class="px-6 py-3 text-left">Status</th>
+                            <th class="px-6 py-3 text-left">Upload Date</th>
+                            <th class="px-6 py-3 text-left">Expiry Date</th>
+                            <th class="px-6 py-3 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($videos as $video)
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="px-4 py-4 text-center">{{ $loop->iteration }}</td>
+                                <td class="px-4 py-4">
+                                    @if(!empty($video->preview_thumbnail))
+                                        <img src="{{ asset('storage/' . $video->preview_thumbnail) }}" 
+                                             alt="{{ $video->title }}" 
+                                             class="w-20 h-12 object-cover rounded">
+                                    @else
+                                        <div class="w-20 h-12 bg-gray-100 rounded flex items-center justify-center">
+                                            <i class="bi bi-camera-video text-gray-400"></i>
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 font-medium">
+                                    <button type="button"
+                                            class="text-left hover:text-blue-600"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#titleModal"
+                                            data-title="{{ $video->title }}"
+                                            title="Click to view full title">
+                                        {{ \Str::limit($video->title, 15) }}
+                                    </button>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <button type="button" 
+                                            class="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md transition-colors"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#descModal"
+                                            data-description="{{ $video->description }}"
+                                            title="Click to view description">
+                                        <i class="bi bi-file-text me-1"></i>
+                                        View
+                                    </button>
+                                </td>
+                                <td class="px-6 py-4">{{ $video->uploader && $video->uploader->name ? $video->uploader->name : 'Unknown' }}</td>
+                                <td class="px-6 py-4">{{ $video->country && $video->country->name ? $video->country->name : 'Unknown' }}</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium 
+                                        {{ $video->status == 'Published' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                        {{ $video->status }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">{{ $video->upload_date ? \Carbon\Carbon::parse($video->upload_date)->format('Y-m-d') : '' }}</td>
+                                <td class="px-6 py-4">{{ $video->upload_date ? \Carbon\Carbon::parse($video->upload_date)->addDays(30)->format('Y-m-d') : '' }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('videos.show', $video) }}" 
+                                           class="text-blue-600 hover:text-blue-800"
+                                           title="View">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if($video->uploader && $video->uploader->id === Auth::id())
+                                            <a href="{{ route('videos.edit', $video) }}"
+                                               class="text-yellow-600 hover:text-yellow-800"
+                                               title="Edit">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <form action="{{ route('videos.destroy', $video->id) }}" 
+                                                  method="POST" 
+                                                  class="inline-block"
+                                                  onsubmit="return confirm('Are you sure you want to delete this video?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" 
+                                                        class="text-red-600 hover:text-red-800"
+                                                        title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="10" class="px-6 py-8 text-center text-gray-500">
+                                    <div class="flex flex-col items-center">
+                                        <i class="bi bi-camera-video text-4xl mb-2"></i>
+                                        <p class="text-lg font-medium mb-1">No videos found</p>
+                                        <p class="text-sm mb-4">Get started by uploading your first video</p>
+                                        @auth
+                                            <a href="{{ route('videos.create') }}" 
+                                               class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                                Upload Video
+                                            </a>
+                                        @endauth
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if($videos->hasPages())
+                <div class="px-6 py-4 border-t border-gray-200">
+                    {{ $videos->links() }}
+                </div>
+            @endif
+        </div>
     </div>
-  </div>
 </div>
+
+<!-- Description Modal -->
+<div class="modal fade" id="descModal" tabindex="-1" aria-labelledby="descModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-lg shadow-lg">
+            <div class="modal-header border-b border-gray-200">
+                <h5 class="modal-title text-lg font-semibold" id="descModalLabel">Video Description</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p id="descModalContent" class="text-gray-700 whitespace-pre-wrap leading-relaxed"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Title Modal -->
+<div class="modal fade" id="titleModal" tabindex="-1" aria-labelledby="titleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-lg shadow-lg">
+            <div class="modal-header border-b border-gray-200">
+                <h5 class="modal-title text-lg font-semibold" id="titleModalLabel">Video Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p id="titleModalContent" class="text-lg font-medium text-gray-800"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Fill edit modal fields
-  document.querySelectorAll('.edit-video-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      const videoId = btn.getAttribute('data-id');
-      document.getElementById('edit-video-id').value = videoId;
-      // Set the form action to the update route
-      document.getElementById('editVideoForm').action = `/videos/${videoId}`;
-      document.getElementById('edit-title').value = btn.getAttribute('data-title');
-      document.getElementById('edit-description').value = btn.getAttribute('data-description');
-      // Set category dropdown
-      const catSel = document.getElementById('edit-category');
-      const catVal = btn.getAttribute('data-category');
-      if (catSel && catVal) {
-        catSel.value = catVal;
-      }
-      const thumbUrl = btn.getAttribute('data-thumbnail');
-      document.getElementById('edit-thumbnail-preview-img').src = thumbUrl || 'https://placehold.co/120x80?text=No+Image';
+    // Description button click handlers
+    document.querySelectorAll('button[data-bs-target="#descModal"]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const description = this.getAttribute('data-description');
+            const modalContent = document.getElementById('descModalContent');
+            modalContent.textContent = description || 'No description available';
+            new bootstrap.Modal(document.getElementById('descModal')).show();
+        });
     });
-  });
-  // Live preview for thumbnail in edit modal
-  const thumbInput = document.getElementById('edit-preview_thumbnail');
-  const thumbImg = document.getElementById('edit-thumbnail-preview-img');
-  if (thumbInput && thumbImg) {
-    thumbInput.addEventListener('change', function(e) {
-      if (thumbInput.files && thumbInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          thumbImg.src = e.target.result;
+
+    // Title button click handlers
+    document.querySelectorAll('button[data-bs-target="#titleModal"]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const title = this.getAttribute('data-title');
+            const modalContent = document.getElementById('titleModalContent');
+            modalContent.textContent = title;
+            new bootstrap.Modal(document.getElementById('titleModal')).show();
+        });
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const videoRows = document.querySelectorAll('tbody tr');
+
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        
+        videoRows.forEach(row => {
+            const title = row.querySelector('button[data-title]')?.getAttribute('data-title')?.toLowerCase() || '';
+            const description = row.querySelector('button[data-description]')?.getAttribute('data-description')?.toLowerCase() || '';
+            const uploader = row.querySelector('td:nth-child(5)')?.textContent?.toLowerCase() || '';
+            const country = row.querySelector('td:nth-child(6)')?.textContent?.toLowerCase() || '';
+            const status = row.querySelector('td:nth-child(7)')?.textContent?.toLowerCase() || '';
+
+            const matches = title.includes(searchTerm) || 
+                          description.includes(searchTerm) || 
+                          uploader.includes(searchTerm) ||
+                          country.includes(searchTerm) ||
+                          status.includes(searchTerm);
+
+            row.style.display = matches ? '' : 'none';
+        });
+
+        // Show/hide empty state message
+        const visibleRows = Array.from(videoRows).filter(row => row.style.display !== 'none');
+        const emptyMessage = document.querySelector('tr[data-empty-message]');
+        
+        if (visibleRows.length === 0 && !emptyMessage) {
+            const tbody = document.querySelector('tbody');
+            const emptyRow = document.createElement('tr');
+            emptyRow.setAttribute('data-empty-message', 'true');
+            emptyRow.innerHTML = `
+                <td colspan="10" class="px-6 py-8 text-center text-gray-500">
+                    <div class="flex flex-col items-center">
+                        <i class="bi bi-search text-4xl mb-2"></i>
+                        <p class="text-lg font-medium mb-1">No matching videos found</p>
+                        <p class="text-sm">Try adjusting your search terms</p>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(emptyRow);
+        } else if (visibleRows.length > 0 && emptyMessage) {
+            emptyMessage.remove();
         }
-        reader.readAsDataURL(thumbInput.files[0]);
-      }
     });
-  }
+
+    // Initialize tooltips if Bootstrap is loaded
+    if (typeof bootstrap !== 'undefined') {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
 });
 </script>
+@endpush
 @endsection

@@ -2,74 +2,142 @@
 namespace App\Http\Controllers;
 
 use App\Models\News;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class NewsController extends Controller
 {
     public function index()
     {
-        $news = News::latest()->paginate(10);
+        $news = News::with(['author', 'category'])
+            ->latest()
+            ->paginate(9);
+
         return view('news.index', compact('news'));
     }
 
     public function create()
     {
-        return view('news.create');
+        if (!Gate::allows('isAdmin')) {
+            Log::error('Create news access denied', [
+                'user_id' => auth()->id(),
+                'user_email' => auth()->user()->email,
+                'role_id' => auth()->user()->role_id,
+                'role_name' => auth()->user()->role ? auth()->user()->role->name : null
+            ]);
+            abort(403, 'This action is unauthorized.');
+        }
+
+        $categories = Category::all();
+        return view('news.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'category' => 'nullable|string|max:100',
-            'image' => 'nullable|image|max:2048',
-            'summary' => 'required|string|max:500',
-            'body' => 'required|string',
-        ]);
-
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('news_images', 'public');
+        if (!Gate::allows('isAdmin')) {
+            Log::error('Store news access denied', [
+                'user_id' => auth()->id(),
+                'user_email' => auth()->user()->email,
+                'role_id' => auth()->user()->role_id,
+                'role_name' => auth()->user()->role ? auth()->user()->role->name : null
+            ]);
+            abort(403, 'This action is unauthorized.');
         }
 
-        News::create($validated);
-        return redirect()->route('news.index')->with('status', 'News article created!');
+        $validated = $request->validate([
+            'title' => 'required|max:255',
+            'content' => 'required',
+            'excerpt' => 'required|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'image' => 'required|image|max:2048'
+        ]);
+
+        $news = News::create([
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'excerpt' => $validated['excerpt'],
+            'category_id' => $validated['category_id'],
+            'author_id' => auth()->id(),
+            'image' => $request->file('image')->store('news', 'public')
+        ]);
+
+        return redirect()->route('news.show', $news)
+            ->with('success', 'News article created successfully.');
     }
 
     public function edit(News $news)
     {
-        return view('news.edit', compact('news'));
+        if (!Gate::allows('isAdmin')) {
+            Log::error('Edit news access denied', [
+                'user_id' => auth()->id(),
+                'user_email' => auth()->user()->email,
+                'role_id' => auth()->user()->role_id,
+                'role_name' => auth()->user()->role ? auth()->user()->role->name : null
+            ]);
+            abort(403, 'This action is unauthorized.');
+        }
+
+        $categories = Category::all();
+        return view('news.edit', compact('news', 'categories'));
     }
 
     public function update(Request $request, News $news)
     {
+        if (!Gate::allows('isAdmin')) {
+            Log::error('Update news access denied', [
+                'user_id' => auth()->id(),
+                'user_email' => auth()->user()->email,
+                'role_id' => auth()->user()->role_id,
+                'role_name' => auth()->user()->role ? auth()->user()->role->name : null
+            ]);
+            abort(403, 'This action is unauthorized.');
+        }
+
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'category' => 'nullable|string|max:100',
-            'image' => 'nullable|image|max:2048',
-            'summary' => 'required|string|max:500',
-            'body' => 'required|string',
+            'title' => 'required|max:255',
+            'content' => 'required',
+            'excerpt' => 'required|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'image' => 'nullable|image|max:2048'
+        ]);
+
+        $news->update([
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'excerpt' => $validated['excerpt'],
+            'category_id' => $validated['category_id']
         ]);
 
         if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($news->image) {
-                Storage::disk('public')->delete($news->image);
-            }
-            $validated['image'] = $request->file('image')->store('news_images', 'public');
+            $news->update([
+                'image' => $request->file('image')->store('news', 'public')
+            ]);
         }
 
-        $news->update($validated);
-        return redirect()->route('news.index')->with('status', 'News article updated!');
+        return redirect()->route('news.show', $news)
+            ->with('success', 'News article updated successfully.');
     }
 
     public function destroy(News $news)
     {
-        if ($news->image) {
-            Storage::disk('public')->delete($news->image);
+        if (!Gate::allows('isAdmin')) {
+            Log::error('Delete news access denied', [
+                'user_id' => auth()->id(),
+                'user_email' => auth()->user()->email,
+                'role_id' => auth()->user()->role_id,
+                'role_name' => auth()->user()->role ? auth()->user()->role->name : null
+            ]);
+            abort(403, 'This action is unauthorized.');
         }
+
         $news->delete();
-        return redirect()->route('news.index')->with('status', 'News article deleted!');
+
+        return redirect()->route('news.index')
+            ->with('success', 'News article deleted successfully.');
     }
 
     public function show(News $news)
