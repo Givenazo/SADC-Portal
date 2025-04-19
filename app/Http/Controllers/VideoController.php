@@ -6,6 +6,7 @@ use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class VideoController extends Controller
 {
@@ -56,33 +57,45 @@ class VideoController extends Controller
             'comments_enabled' => 'boolean',
         ]);
 
-        // Store files
-        $videoPath = $request->file('video_file')->store('videos', 'public');
-        $scriptPath = $request->file('script_file')->store('scripts', 'public');
-        $voiceoverPath = $request->file('voiceover_file') ? $request->file('voiceover_file')->store('voiceovers', 'public') : null;
-        $thumbnailPath = $request->file('preview_thumbnail') ? $request->file('preview_thumbnail')->store('thumbnails', 'public') : null;
-
+        // Create video record first to get the ID
         $video = Video::create([
             'title' => $validated['title'],
             'description' => $validated['description'],
             'category_id' => $validated['category_id'],
-            'video_path' => $videoPath,
-            'script_path' => $scriptPath,
+            'video_path' => '', // Temporary empty value
+            'script_path' => '', // Temporary empty value
             'uploaded_by' => Auth::id(),
             'upload_date' => now()->toDateString(),
-            'voiceover_path' => $voiceoverPath,
-            'preview_thumbnail' => $thumbnailPath,
+            'voiceover_path' => null,
+            'preview_thumbnail' => null,
             'country_id' => $validated['country_id'],
             'status' => $validated['status'],
             'comments_enabled' => $validated['comments_enabled'] ?? true,
         ]);
 
+        // Create directories for this video
+        $videoDir = "videos/{$video->id}";
+        $scriptDir = "scripts/{$video->id}";
+        $voiceoverDir = "voiceovers/{$video->id}";
+        $thumbnailDir = "thumbnails/{$video->id}";
+
+        // Store files in their respective directories
+        $videoPath = $request->file('video_file')->store($videoDir, 'public');
+        $scriptPath = $request->file('script_file')->store($scriptDir, 'public');
+        $voiceoverPath = $request->file('voiceover_file') ? $request->file('voiceover_file')->store($voiceoverDir, 'public') : null;
+        $thumbnailPath = $request->file('preview_thumbnail') ? $request->file('preview_thumbnail')->store($thumbnailDir, 'public') : null;
+
+        // Update video record with file paths
+        $video->update([
+            'video_path' => $videoPath,
+            'script_path' => $scriptPath,
+            'voiceover_path' => $voiceoverPath,
+            'preview_thumbnail' => $thumbnailPath,
+        ]);
+
         // Dispatch VideoUploaded event
         event(new \App\Events\VideoUploaded($video));
 
-        if ($request->expectsJson() || $request->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Video uploaded successfully!']);
-        }
         return redirect()->route('videos.index');
     }
 
@@ -101,11 +114,28 @@ class VideoController extends Controller
     public function destroy($id)
     {
         $video = Video::findOrFail($id);
-        if ($video->uploaded_by !== auth()->id()) {
-            return redirect()->route('dashboard');
+        
+        // Check if user has permission to delete
+        if ($video->uploaded_by !== auth()->id() && !auth()->user()->isAdmin()) {
+            return redirect()->back()->with('error', 'You do not have permission to delete this video.');
         }
+
+        // Delete video directory and all its contents
+        $directories = [
+            "videos/{$video->id}",
+            "scripts/{$video->id}",
+            "voiceovers/{$video->id}",
+            "thumbnails/{$video->id}"
+        ];
+
+        foreach ($directories as $dir) {
+            if (Storage::disk('public')->exists($dir)) {
+                Storage::disk('public')->deleteDirectory($dir);
+            }
+        }
+
         $video->delete();
-        return redirect()->route('videos.index');
+        return redirect()->back()->with('success', 'Video deleted successfully.');
     }
 
     /**
@@ -126,26 +156,35 @@ class VideoController extends Controller
             'voiceover_file' => 'nullable|file|mimes:mp3,wav|max:20480',
             'preview_thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
+
         $video->title = $validated['title'];
         $video->description = $validated['description'];
         $video->category_id = $validated['category_id'];
+
+        // Define directories for this video
+        $videoDir = "videos/{$video->id}";
+        $scriptDir = "scripts/{$video->id}";
+        $voiceoverDir = "voiceovers/{$video->id}";
+        $thumbnailDir = "thumbnails/{$video->id}";
+
         // Handle file replacements
         if ($request->hasFile('video_file')) {
             if ($video->video_path) Storage::disk('public')->delete($video->video_path);
-            $video->video_path = $request->file('video_file')->store('videos', 'public');
+            $video->video_path = $request->file('video_file')->store($videoDir, 'public');
         }
         if ($request->hasFile('script_file')) {
             if ($video->script_path) Storage::disk('public')->delete($video->script_path);
-            $video->script_path = $request->file('script_file')->store('scripts', 'public');
+            $video->script_path = $request->file('script_file')->store($scriptDir, 'public');
         }
         if ($request->hasFile('voiceover_file')) {
             if ($video->voiceover_path) Storage::disk('public')->delete($video->voiceover_path);
-            $video->voiceover_path = $request->file('voiceover_file')->store('voiceovers', 'public');
+            $video->voiceover_path = $request->file('voiceover_file')->store($voiceoverDir, 'public');
         }
         if ($request->hasFile('preview_thumbnail')) {
             if ($video->preview_thumbnail) Storage::disk('public')->delete($video->preview_thumbnail);
-            $video->preview_thumbnail = $request->file('preview_thumbnail')->store('thumbnails', 'public');
+            $video->preview_thumbnail = $request->file('preview_thumbnail')->store($thumbnailDir, 'public');
         }
+
         $video->save();
         return redirect()->route('videos.index');
     }

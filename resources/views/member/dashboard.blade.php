@@ -229,7 +229,7 @@
             <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#play-modal-{{ $video->id }}">
               <i class="bi bi-play-circle me-1"></i> Play Video
             </button>
-            <a href="{{ asset('storage/' . $video->video_path) }}" class="btn btn-success" download>
+            <a href="{{ asset('storage/videos/' . $video->id . '/' . basename($video->video_path)) }}" class="btn btn-success" download>
               <i class="bi bi-download me-1"></i> Download Video
             </a>
           </div>
@@ -265,7 +265,7 @@
 @else
     <button class="btn btn-outline-warning btn-sm me-1" disabled><i class="bi bi-mic"></i> Voice Over</button>
 @endif
-<a href="{{ asset('storage/' . $video->video_path) }}" class="btn btn-outline-success btn-sm" download><i class="bi bi-download"></i> Download</a>
+<a href="{{ asset('storage/videos/' . $video->id . '/' . basename($video->video_path)) }}" class="btn btn-outline-success btn-sm" download><i class="bi bi-download"></i> Download</a>
 @if(auth()->check() && isset($video->uploader) && $video->uploader->name === auth()->user()->name)
     <form action="{{ route('videos.destroy', $video->id) }}" method="POST" class="d-inline">
         @csrf
