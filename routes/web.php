@@ -125,4 +125,6 @@ Route::middleware(['auth', 'verified', 'can:isAdmin'])->group(function () {
     Route::delete('/admin/news/{news}', [\App\Http\Controllers\NewsController::class, 'destroy'])->name('news.destroy');
 });
 
+Route::post('/contact/submit', [App\Http\Controllers\ContactController::class, 'submit'])->name('contact.submit');
+
 require __DIR__.'/auth.php';

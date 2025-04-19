@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const year = today.getFullYear();
         const todayFormatted = `${month} ${day}, ${year}`;
         document.querySelectorAll('#active-videos tbody tr').forEach(function(row) {
-            const uploadDateCell = row.querySelector('td:nth-child(6)');
+            const uploadDateCell = row.querySelector('td:nth-child(5)');
             if (!uploadDateCell) return;
             const uploadDate = uploadDateCell.textContent.trim();
             if (checkbox.checked) {

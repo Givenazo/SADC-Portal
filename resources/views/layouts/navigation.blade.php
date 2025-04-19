@@ -67,11 +67,30 @@
                                 </div>
                                 @php
     $country = Auth::user()->country ?? null;
-    $iso = $country && isset($country->iso_code) ? strtolower($country->iso_code) : null;
+    $iso = $country && isset($country->name) ? strtolower(str_replace([' ', '(', ')'], '', $country->name)) : null;
+    $countryIsoCodes = [
+        'Angola' => 'ao',
+        'Botswana' => 'bw',
+        'Comoros' => 'km',
+        'DRCCongo' => 'cd',
+        'Eswatini' => 'sz',
+        'Lesotho' => 'ls',
+        'Madagascar' => 'mg',
+        'Malawi' => 'mw',
+        'Mauritius' => 'mu',
+        'Mozambique' => 'mz',
+        'Namibia' => 'na',
+        'Seychelles' => 'sc',
+        'SouthAfrica' => 'za',
+        'Tanzania' => 'tz',
+        'Zambia' => 'zm',
+        'Zimbabwe' => 'zw',
+    ];
+    $iso = $countryIsoCodes[$country->name] ?? null;
 @endphp
 @if($country && $iso)
     <span class="ms-3 flex items-center justify-center h-7 w-7 bg-white border border-gray-300 rounded-md shadow-sm" style="min-width:1.75rem; min-height:1.75rem;">
-        <img src="/flags/{{ $iso }}.svg" alt="{{ $country->name }} Flag" class="h-5 w-5 object-contain" />
+        <img src="https://flagcdn.com/20x15/{{ $iso }}.png" alt="{{ $country->name }} Flag" class="h-5 w-5 object-contain" />
     </span>
 @else
     <span class="ms-3 flex items-center justify-center h-7 w-7 bg-gray-100 border border-gray-300 rounded-md shadow-sm" style="min-width:1.75rem; min-height:1.75rem;">

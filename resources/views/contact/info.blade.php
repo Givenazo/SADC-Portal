@@ -12,81 +12,128 @@
 </div>
 @endsection
 
-
-
 @section('content')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <style>
-  .info-card {
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 2px 12px 0 rgba(44,62,80,0.08);
-    transition: box-shadow 0.2s;
-    padding: 22px 8px 18px 8px;
-    min-height: 220px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 0;
-  }
-  .info-card .icon {
-    font-size: 2.1rem;
-    margin-bottom: 4px;
-  }
-  .info-card h6 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #222;
-  }
-  .info-card p {
-    color: #888;
-    font-size: 1rem;
-    margin-bottom: 0;
-  }
-  .info-card .about { color: #1677fa; }
-  .info-card .values { color: #14b86b; }
-  .info-card .mission { color: #ff4747; }
-  .info-card .contact { color: #16b1fa; }
-  @media (max-width: 991px) {
-    .info-card { min-height: 220px; padding: 24px 8px; }
-  }
-</style>
-<div class="container py-4">
-  <div class="row g-2 mb-2">
-    <div class="col-lg-3 col-md-6">
-      <div class="info-card">
-        <i class="bi bi-info-circle-fill icon about"></i>
-        <h6>About Us</h6>
-        <p>Learn about the SADC News Portal, our history, and our mission to deliver reliable news across the region.</p>
-      </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-      <div class="info-card">
-        <i class="bi bi-gem icon values"></i>
-        <h6>Core Values</h6>
-        <p>Integrity, transparency, and a commitment to truthful reporting are at the heart of everything we do.</p>
-      </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-      <div class="info-card">
-        <i class="bi bi-bullseye icon mission"></i>
-        <h6>Mission</h6>
-        <p>To empower communities by providing timely, accurate, and relevant news for all SADC member states.</p>
-      </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-      <div class="info-card">
-        <i class="bi bi-envelope-fill icon contact"></i>
-        <h6>Contact Info</h6>
-        <p class="text-center" style="width:100%">Email: info@sadcnews.com<br>Phone: +264 81 143 3825<br>Address: 123 Sacky Shikufa Avenue, Windhoek, Namibia</p>
-      </div>
-    </div>
-  </div>
-</div>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-<link rel="stylesheet" href="/css/sadc-custom.css">
-<noscript><style>.bi{display:none !important;}</style><span style='color:red'>Icons require JavaScript and CDN access.</span></noscript>
+    /* Info Cards */
+    .info-cards-container {
+        display: flex;
+        gap: 20px;
+        margin: 2rem auto;
+        padding: 20px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        max-width: 1200px;
+        width: 90%;
+    }
 
+    .info-card {
+        flex: 1;
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        text-align: left;
+        border: none;
+        box-shadow: none;
+        min-width: 250px;
+    }
+
+    .info-card .icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+        padding: 0;
+        border-radius: 0;
+        color: #185a9d;
+    }
+
+    .info-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #2d3748;
+    }
+
+    .info-card p {
+        color: #718096;
+        line-height: 1.5;
+        margin-bottom: 0;
+        font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+        .info-cards-container {
+            flex-direction: column;
+        }
+        .info-card {
+            width: 100%;
+        }
+    }
+
+    /* Social Links */
+    .social-links {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .social-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: white;
+        color: #2d3748;
+        font-size: 1.5rem;
+        margin: 0 0.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .social-link:hover {
+        transform: translateY(-3px);
+        color: #4299e1;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<!-- Info Cards -->
+<div class="container-fluid px-4">
+    <div class="info-cards-container">
+        <div class="info-card">
+            <i class="bi bi-building icon"></i>
+            <h3>Visit Us</h3>
+            <p>123 Sacky Shikufa Avenue<br>Windhoek, Namibia<br>9000</p>
+        </div>
+        <div class="info-card">
+            <i class="bi bi-telephone icon"></i>
+            <h3>Call Us</h3>
+            <p>Tel: +264 81 143 3825<br>Fax: +264 61 123 4567<br>Mon-Fri 8:00-17:00</p>
+        </div>
+        <div class="info-card">
+            <i class="bi bi-envelope icon"></i>
+            <h3>Email Us</h3>
+            <p>General: info@sadcnews.com<br>Support: help@sadcnews.com<br>Press: media@sadcnews.com</p>
+        </div>
+        <div class="info-card">
+            <i class="bi bi-chat-dots icon"></i>
+            <h3>Live Chat</h3>
+            <p>Chat with our support team<br>Response time: 5 mins<br>24/7 Support</p>
+        </div>
+    </div>
+
+    <!-- Social Links -->
+    <div class="social-links text-center">
+        <h2 class="mb-4">Connect With Us</h2>
+        <a href="#" class="social-link"><i class="bi bi-facebook"></i></a>
+        <a href="#" class="social-link"><i class="bi bi-twitter"></i></a>
+        <a href="#" class="social-link"><i class="bi bi-linkedin"></i></a>
+        <a href="#" class="social-link"><i class="bi bi-instagram"></i></a>
+        <a href="#" class="social-link"><i class="bi bi-youtube"></i></a>
+    </div>
+</div>
 @endsection

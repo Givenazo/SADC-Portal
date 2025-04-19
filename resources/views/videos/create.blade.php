@@ -2,271 +2,420 @@
 @section('content')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <style>
-    .upload-modern-card {
+    .upload-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    .upload-card {
+        background: white;
         border-radius: 1.5rem;
-        box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
         overflow: hidden;
         border: none;
     }
-    .upload-illustration {
-        background: linear-gradient(135deg, #e0f7fa 0%, #e3ffe6 100%);
+    .progress-bar-container {
+        padding: 2rem 2rem 0;
+    }
+    .upload-steps {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    .upload-steps::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e9ecef;
+        z-index: 1;
+    }
+    .step {
+        position: relative;
+        z-index: 2;
+        background: white;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        border: 2px solid #e9ecef;
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 100%;
-        min-height: 410px;
+        font-weight: 600;
+        color: #6c757d;
+        transition: all 0.3s ease;
     }
-    .upload-illustration .bi {
-        font-size: 5rem;
+    .step.active {
+        border-color: #43cea2;
         color: #43cea2;
-        opacity: 0.8;
     }
-    .upload-tips {
-        margin-top: 2rem;
-        font-size: 1rem;
-        color: #185a9d;
-        background: rgba(67,206,162,0.08);
-        border-radius: 1rem;
-        padding: 1rem 1.5rem;
+    .step.completed {
+        background: #43cea2;
+        border-color: #43cea2;
+        color: white;
+    }
+    .step-label {
+        position: absolute;
+        top: 45px;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    .upload-content {
+        padding: 2rem;
     }
     .drag-drop-area {
         border: 2px dashed #43cea2;
         border-radius: 1rem;
-        background: #f7fcfa;
+        background: #f8fdfb;
         text-align: center;
-        padding: 2rem 1rem;
+        padding: 3rem 2rem;
         margin-bottom: 1.5rem;
-        transition: border-color 0.2s;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .drag-drop-area:hover {
+        background: #f0faf7;
     }
     .drag-drop-area.dragover {
-        border-color: #185a9d;
         background: #e0f7fa;
+        border-color: #185a9d;
     }
-    .modern-upload-btn {
-        background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
-        color: #fff;
-        font-weight: 600;
-        border-radius: 0.5rem;
-        padding: 0.75rem 2.5rem;
-        font-size: 1.15rem;
-        box-shadow: 0 2px 12px rgba(67,206,162,0.12);
-        border: none;
-        transition: background 0.2s;
-    }
-    .modern-upload-btn:hover {
-        background: linear-gradient(90deg, #185a9d 0%, #43cea2 100%);
-        color: #fff;
-    }
-</style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-<style>
-    .upload-modern-card {
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 32px rgba(0,0,0,0.10);
-        overflow: hidden;
-        border: none;
-    }
-    .upload-illustration {
-        background: linear-gradient(135deg, #e0f7fa 0%, #e3ffe6 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        min-height: 410px;
-    }
-    .upload-illustration .bi {
-        font-size: 5rem;
+    .drag-drop-icon {
+        font-size: 3.5rem;
         color: #43cea2;
-        opacity: 0.8;
+        margin-bottom: 1rem;
+    }
+    .file-input-container {
+        background: #f8f9fa;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .file-input-container .form-label {
+        color: #2d3748;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+    .file-input-container .form-text {
+        color: #718096;
+    }
+    .thumbnail-preview {
+        width: 200px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 0.75rem;
+        margin-bottom: 1rem;
+        background: #f3f4f6;
+    }
+    .form-control {
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-color: #e2e8f0;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #43cea2;
+        box-shadow: 0 0 0 3px rgba(67, 206, 162, 0.1);
+    }
+    .btn-upload {
+        background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-upload:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(67, 206, 162, 0.2);
+    }
+    .btn-nav {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 500;
     }
     .upload-tips {
+        background: rgba(67, 206, 162, 0.08);
+        border-radius: 1rem;
+        padding: 1.5rem;
         margin-top: 2rem;
-        font-size: 1rem;
-        color: #185a9d;
-        background: rgba(67,206,162,0.08);
-        border-radius: 1rem;
-        padding: 1rem 1.5rem;
     }
-    .drag-drop-area {
-        border: 2px dashed #43cea2;
-        border-radius: 1rem;
-        background: #f7fcfa;
-        text-align: center;
-        padding: 2rem 1rem;
-        margin-bottom: 1.5rem;
-        transition: border-color 0.2s;
+    .upload-tips ul {
+        margin-bottom: 0;
+        padding-left: 1.5rem;
     }
-    .drag-drop-area.dragover {
-        border-color: #185a9d;
-        background: #e0f7fa;
+    .upload-tips li {
+        color: #2d3748;
+        margin-bottom: 0.5rem;
     }
-    .modern-upload-btn {
-        background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
-        color: #fff;
-        font-weight: 600;
-        border-radius: 0.5rem;
-        padding: 0.75rem 2.5rem;
-        font-size: 1.15rem;
-        box-shadow: 0 2px 12px rgba(67,206,162,0.12);
-        border: none;
-        transition: background 0.2s;
-    }
-    .modern-upload-btn:hover {
-        background: linear-gradient(90deg, #185a9d 0%, #43cea2 100%);
-        color: #fff;
+    .upload-tips li:last-child {
+        margin-bottom: 0;
     }
 </style>
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card upload-modern-card">
-                <div class="row g-0">
-                    <div class="col-md-5 d-none d-md-flex flex-column upload-illustration">
-                        <div class="w-100 text-center">
-                            <i class="bi bi-cloud-arrow-up"></i>
-                            <h4 class="fw-bold mt-4 mb-2 text-success">Share Your Video with SADC</h4>
-                            <div class="upload-tips">
-                                <ul class="mb-0 ps-3">
-                                    <li>Accepted formats: MP4, AVI, MOV, WMV</li>
-                                    <li>Max size: 500MB</li>
-                                    <li>Attach your script and optional voiceover</li>
-                                    <li>Preview thumbnail is optional</li>
-                                    <li>Make sure your content follows community guidelines</li>
-                                </ul>
-                            </div>
-                        </div>
+
+<div class="upload-container">
+    <div class="upload-card">
+        <div class="progress-bar-container">
+            <div class="upload-steps">
+                <div class="step active" id="step1">
+                    1
+                    <span class="step-label">Basic Info</span>
+                </div>
+                <div class="step" id="step2">
+                    2
+                    <span class="step-label">Video Upload</span>
+                </div>
+                <div class="step" id="step3">
+                    3
+                    <span class="step-label">Additional Files</span>
+                </div>
+                <div class="step" id="step4">
+                    4
+                    <span class="step-label">Review</span>
+                </div>
+            </div>
+        </div>
+
+        <form id="uploadVideoForm" method="POST" action="{{ route('videos.store') }}" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="country_id" value="{{ isset($country) ? $country->id : '' }}">
+            <input type="hidden" name="status" value="Published">
+            <input type="hidden" name="comments_enabled" value="1">
+
+            <div class="upload-content">
+                <h3 class="mb-4 fw-bold">Upload Video</h3>
+                
+                <!-- Basic Information -->
+                <div class="section-content mb-5">
+                    <h4 class="mb-4">Video Information</h4>
+                    <div class="mb-4">
+                        <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg" id="title" name="title" required
+                               placeholder="Enter a descriptive title for your video">
                     </div>
-                    <div class="col-md-7 bg-white p-4 p-lg-5">
-                        <h3 class="fw-bold mb-4 text-primary"><i class="bi bi-upload"></i> Upload a Video</h3>
-                        
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control form-control-lg" id="description" name="description" rows="4" required
+                                  placeholder="Provide a detailed description of your video content"></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="category_id" class="form-label">Category <span class="text-danger">*</span></label>
+                        <select class="form-control form-control-lg" id="category_id" name="category_id" required>
+                            <option value="">Select a category</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
 
+                <!-- Video Upload -->
+                <div class="section-content mb-5">
+                    <h4 class="mb-4">Video File</h4>
+                    <div class="drag-drop-area" id="dragDropArea">
+                        <i class="bi bi-cloud-upload drag-drop-icon"></i>
+                        <h4 class="mb-3">Drag & Drop Your Video Here</h4>
+                        <p class="text-muted mb-3">or</p>
+                        <button type="button" class="btn btn-outline-primary btn-lg" id="browseBtn">Browse Files</button>
+                        <input type="file" class="d-none" id="video_file" name="video_file" accept="video/*" required>
+                        <div id="videoFileName" class="mt-3 text-muted"></div>
+                    </div>
+                    <div class="upload-tips">
+                        <h5 class="mb-3"><i class="bi bi-info-circle me-2"></i>Upload Guidelines</h5>
+                        <ul>
+                            <li>Maximum file size: 500MB</li>
+                            <li>Supported formats: MP4, AVI, MOV, WMV</li>
+                            <li>Recommended resolution: 1920x1080 (Full HD)</li>
+                            <li>Keep your video length under 30 minutes</li>
+                        </ul>
+                    </div>
+                </div>
 
-<form method="POST" action="{{ route('videos.store') }}" enctype="multipart/form-data">
-    <input type="hidden" name="country_id" value="{{ isset($country) ? $country->id : '' }}">
-    <input type="hidden" name="status" value="Published">
-                            @csrf
-                            <div class="row g-4 align-items-center mb-3">
-                                <div class="col-md-4 text-md-end">
-                                    <label for="title" class="form-label fw-semibold">Title</label>
-                                </div>
-                                <div class="col-md-8">
-                                    <input type="text" class="form-control form-control-lg" id="title" name="title" required>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <label for="description" class="form-label fw-semibold">Description</label>
-                                </div>
-                                <div class="col-md-8 mt-3 mt-md-0">
-                                    <textarea class="form-control form-control-lg" id="description" name="description" rows="2" required></textarea>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <label for="category_id" class="form-label fw-semibold">Category</label>
-                                </div>
-                                <div class="col-md-8 mt-3 mt-md-0">
-    <select class="form-control form-control-lg w-100" style="min-width:0;" id="category_id" name="category_id" required>
-        @foreach($categories as $category)
-            <option value="{{ $category->id }}">{{ $category->name }}</option>
-        @endforeach
-    </select>
-</div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <label for="video_file" class="form-label fw-semibold">Video File</label>
-                                </div>
-                                <div class="col-md-8 mt-3 mt-md-0">
-                                    <div class="drag-drop-area" id="dragDropArea">
-                                        <i class="bi bi-file-earmark-play-fill display-5 text-success mb-2"></i>
-                                        <div class="mb-2">Drag & drop your video here, or click to select</div>
-                                        <input type="file" class="form-control d-none" id="video_file" name="video_file" accept="video/*" required>
-                                        <button type="button" class="btn btn-outline-success btn-sm mt-2" id="browseBtn">Browse</button>
-                                        <div id="videoFileName" class="small text-muted mt-2">
-    @if(old('video_file'))
-        {{ old('video_file') }}
-    @endif
-</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row g-4 mb-3">
-                                <div class="col-md-6">
-                                    <div class="p-3 h-100 bg-light rounded-3 shadow-sm border">
-                                        <label for="script_file" class="form-label fw-semibold">
-                                            <i class="bi bi-file-earmark-text text-primary me-1"></i> Script File
-                                        </label>
-                                        <input type="file" class="form-control form-control-lg" id="script_file" name="script_file" accept=".pdf,.doc,.docx,.txt" required>
-                                        <div class="form-text ms-1 mt-1">PDF, DOC, DOCX, TXT &mdash; Max 10MB</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="p-3 h-100 bg-light rounded-3 shadow-sm border">
-                                        <label for="voiceover_file" class="form-label fw-semibold">
-                                            <i class="bi bi-mic text-success me-1"></i> Voiceover File <span class="text-muted small">(optional)</span>
-                                        </label>
-                                        <input type="file" class="form-control form-control-lg" id="voiceover_file" name="voiceover_file" accept="audio/*">
-                                        <div class="form-text ms-1 mt-1">MP3, WAV, AAC &mdash; Max 10MB</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-    <label for="preview_thumbnail" class="form-label">Preview Thumbnail (optional)</label>
-    <div id="thumbnail-preview-wrapper" style="margin-bottom:0.7rem;">
-        <img id="thumbnail-preview-img" src="https://placehold.co/120x80?text=No+Image" alt="Thumbnail Preview" style="width:120px;height:80px;object-fit:cover;border-radius:0.5rem;background:#f3f4f6;display:block;" />
+                <!-- Additional Files -->
+                <div class="section-content mb-5">
+                    <h4 class="mb-4">Additional Files</h4>
+                    <div class="file-input-container">
+                        <label for="script_file" class="form-label">
+                            <i class="bi bi-file-text me-2"></i>Script/Transcript File <span class="text-danger">*</span>
+                        </label>
+                        <input type="file" class="form-control" id="script_file" name="script_file" 
+                               accept=".pdf,.doc,.docx,.txt" required>
+                        <div class="form-text">Accepted formats: PDF, DOC, DOCX, TXT (Max: 10MB)</div>
+                    </div>
+
+                    <div class="file-input-container">
+                        <label for="voiceover_file" class="form-label">
+                            <i class="bi bi-mic me-2"></i>Voiceover File <span class="text-muted">(optional)</span>
+                        </label>
+                        <input type="file" class="form-control" id="voiceover_file" name="voiceover_file" accept="audio/*">
+                        <div class="form-text">Accepted formats: MP3, WAV (Max: 20MB)</div>
+                    </div>
+
+                    <div class="file-input-container">
+                        <label for="preview_thumbnail" class="form-label">
+                            <i class="bi bi-image me-2"></i>Preview Thumbnail <span class="text-muted">(optional)</span>
+                        </label>
+                        <img id="thumbnail-preview-img" src="https://placehold.co/200x120?text=No+Image" 
+                             alt="Thumbnail Preview" class="thumbnail-preview">
+                        <input type="file" class="form-control" id="preview_thumbnail" name="preview_thumbnail" accept="image/*">
+                        <div class="form-text">Recommended size: 1280x720px (16:9 ratio)</div>
+                    </div>
+                </div>
+
+                <!-- Live Review -->
+                <div class="section-content mb-5">
+                    <h4 class="mb-4">Upload Summary</h4>
+                    <div class="review-content bg-light p-4 rounded-3">
+                        <!-- Will be updated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-upload" id="submitBtn">
+                        <i class="bi bi-cloud-upload me-2"></i>Upload Video
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
-    <input type="file" class="form-control form-control-lg" id="preview_thumbnail" name="preview_thumbnail" accept="image/*">
 </div>
+
 <script>
-// Live preview for thumbnail
+// Drag and drop functionality
+const dragDropArea = document.getElementById('dragDropArea');
+const videoInput = document.getElementById('video_file');
+const browseBtn = document.getElementById('browseBtn');
+const fileNameDiv = document.getElementById('videoFileName');
+
+dragDropArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dragDropArea.classList.add('dragover');
+});
+
+dragDropArea.addEventListener('dragleave', () => {
+    dragDropArea.classList.remove('dragover');
+});
+
+dragDropArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dragDropArea.classList.remove('dragover');
+    if (e.dataTransfer.files.length) {
+        videoInput.files = e.dataTransfer.files;
+        updateFileName(e.dataTransfer.files[0]);
+        updateReviewContent();
+    }
+});
+
+browseBtn.addEventListener('click', () => videoInput.click());
+
+videoInput.addEventListener('change', (e) => {
+    if (e.target.files.length) {
+        updateFileName(e.target.files[0]);
+        updateReviewContent();
+    }
+});
+
+function updateFileName(file) {
+    fileNameDiv.innerHTML = `
+        <div class="mt-3">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            <span class="fw-semibold">${file.name}</span>
+            <br>
+            <small class="text-muted">${(file.size / (1024 * 1024)).toFixed(2)} MB</small>
+        </div>
+    `;
+}
+
+// Thumbnail preview
 const thumbInput = document.getElementById('preview_thumbnail');
 const thumbImg = document.getElementById('thumbnail-preview-img');
+
 thumbInput.addEventListener('change', function(e) {
     if (thumbInput.files && thumbInput.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(ev) {
-            thumbImg.src = ev.target.result;
+        reader.onload = function(e) {
+            thumbImg.src = e.target.result;
         };
         reader.readAsDataURL(thumbInput.files[0]);
-    } else {
-        thumbImg.src = 'https://placehold.co/120x80?text=No+Image';
+        updateReviewContent();
     }
 });
-</script>
-                            <button type="submit" class="modern-upload-btn w-100 mt-3">Upload Video</button>
-                        </form>
+
+// Update review content whenever any input changes
+const formInputs = document.querySelectorAll('input, textarea, select');
+formInputs.forEach(input => {
+    input.addEventListener('change', updateReviewContent);
+    input.addEventListener('input', updateReviewContent);
+});
+
+function updateReviewContent() {
+    const reviewContent = document.querySelector('.review-content');
+    const title = document.getElementById('title').value || 'Not provided';
+    const description = document.getElementById('description').value || 'Not provided';
+    const category = document.getElementById('category_id').options[document.getElementById('category_id').selectedIndex]?.text || 'Not selected';
+    const videoFile = document.getElementById('video_file').files[0]?.name || 'No file selected';
+    const scriptFile = document.getElementById('script_file').files[0]?.name || 'No file selected';
+    const voiceoverFile = document.getElementById('voiceover_file').files[0]?.name || 'Not provided';
+    const thumbnailFile = document.getElementById('preview_thumbnail').files[0]?.name || 'Not provided';
+
+    reviewContent.innerHTML = `
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="review-item">
+                    <h6 class="fw-bold text-primary mb-3">Video Information</h6>
+                    <div class="ps-3">
+                        <p class="mb-2"><strong>Title:</strong> ${title}</p>
+                        <p class="mb-2"><strong>Category:</strong> ${category}</p>
+                        <p class="mb-0"><strong>Description:</strong><br>
+                        <small class="text-muted">${description}</small></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="review-item">
+                    <h6 class="fw-bold text-primary mb-3">Uploaded Files</h6>
+                    <div class="ps-3">
+                        <p class="mb-2"><i class="bi bi-file-earmark-play me-2"></i><strong>Video:</strong> ${videoFile}</p>
+                        <p class="mb-2"><i class="bi bi-file-text me-2"></i><strong>Script:</strong> ${scriptFile}</p>
+                        <p class="mb-2"><i class="bi bi-file-music me-2"></i><strong>Voiceover:</strong> ${voiceoverFile}</p>
+                        <p class="mb-0"><i class="bi bi-image me-2"></i><strong>Thumbnail:</strong> ${thumbnailFile}</p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<script>
-    // Drag and drop for video upload
-    const dragDropArea = document.getElementById('dragDropArea');
-    const videoInput = document.getElementById('video_file');
-    const browseBtn = document.getElementById('browseBtn');
-    const fileNameDiv = document.getElementById('videoFileName');
-    dragDropArea.addEventListener('click', () => videoInput.click());
-    browseBtn.addEventListener('click', (e) => { e.stopPropagation(); videoInput.click(); });
-    dragDropArea.addEventListener('dragover', (e) => {
+    `;
+}
+
+// Initial review content update
+updateReviewContent();
+
+// Form validation before submission
+document.getElementById('uploadVideoForm').addEventListener('submit', function(e) {
+    const requiredFields = ['title', 'description', 'category_id', 'video_file', 'script_file'];
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        const element = document.getElementById(field);
+        if (!element.value) {
+            isValid = false;
+            element.classList.add('is-invalid');
+        } else {
+            element.classList.remove('is-invalid');
+        }
+    });
+
+    if (!isValid) {
         e.preventDefault();
-        dragDropArea.classList.add('dragover');
-    });
-    dragDropArea.addEventListener('dragleave', () => dragDropArea.classList.remove('dragover'));
-    dragDropArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dragDropArea.classList.remove('dragover');
-        if (e.dataTransfer.files.length) {
-            videoInput.files = e.dataTransfer.files;
-            fileNameDiv.textContent = e.dataTransfer.files[0].name;
-        }
-    });
-    videoInput.addEventListener('change', () => {
-        if (videoInput.files.length) {
-            fileNameDiv.textContent = videoInput.files[0].name;
-        }
-    });
-    // On page load, if there is a file selected (after validation error), show its name
-    document.addEventListener('DOMContentLoaded', function() {
-        if (videoInput.files && videoInput.files.length) {
-            fileNameDiv.textContent = videoInput.files[0].name;
-        }
-    });
+        alert('Please fill in all required fields before submitting.');
+    }
+});
 </script>
 @endsection
