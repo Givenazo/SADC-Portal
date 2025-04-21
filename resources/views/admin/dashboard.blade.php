@@ -174,7 +174,7 @@
 @endif
                 </div>
                 <div class="card-footer bg-transparent border-0 text-center pt-0 pb-3">
-                    <a href="#" class="btn btn-outline-primary btn-sm disabled" tabindex="-1" aria-disabled="true">More Data</a>
+                    <a href="{{ route('admin.payments') }}" class="btn btn-outline-primary btn-sm">More Data</a>
                 </div>
             </div>
         </div>
@@ -541,4 +541,71 @@ if (revWidget) {
     }
 })();
 </script>
+
+@push('scripts')
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<script>
+    // Initialize Pusher
+    const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
+        cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}'
+    });
+
+    // Subscribe to the payments channel
+    const channel = pusher.subscribe('payments');
+
+    // Listen for payment status updates
+    channel.bind('PaymentStatusUpdated', function(data) {
+        // Update the dashboard payment status row
+        const row = document.querySelector(`tr[data-sub-id="${data.id}"]`);
+        if (row) {
+            // Update payment status badge
+            const statusBadge = row.querySelector('.payment-status-cell .badge');
+            if (statusBadge) {
+                statusBadge.className = `badge bg-${data.payment_status === 'paid' ? 'success' : 'danger'}`;
+                statusBadge.textContent = data.payment_status.charAt(0).toUpperCase() + data.payment_status.slice(1);
+            }
+
+            // Update dates
+            const startDateCell = row.querySelector('.start-date-cell');
+            const endDateCell = row.querySelector('.end-date-cell');
+            if (startDateCell) startDateCell.textContent = data.start_date;
+            if (endDateCell) endDateCell.textContent = data.end_date;
+
+            // Update pay button state
+            const payButton = row.querySelector('button[data-bs-toggle="modal"]');
+            if (payButton) {
+                if (data.payment_status === 'paid') {
+                    payButton.disabled = true;
+                } else {
+                    payButton.disabled = false;
+                }
+            }
+        }
+
+        // Update the Revenue Streams widget
+        updateRevenueWidget();
+    });
+
+    function updateRevenueWidget() {
+        // Make an AJAX call to get updated revenue statistics
+        fetch('{{ route('admin.revenue.stats') }}')
+            .then(response => response.json())
+            .then(data => {
+                const revenueWidget = document.querySelector('.revenue-widget');
+                if (revenueWidget && data.paidPercentage !== undefined) {
+                    const percentageSpan = revenueWidget.querySelector('.fw-bold');
+                    const countSpan = revenueWidget.querySelector('small');
+                    
+                    if (percentageSpan) {
+                        percentageSpan.textContent = `${data.paidPercentage}% paid`;
+                    }
+                    if (countSpan) {
+                        countSpan.textContent = `(${data.paidCount}/${data.paidCount + data.unpaidCount} countries)`;
+                    }
+                }
+            })
+            .catch(error => console.error('Error updating revenue widget:', error));
+    }
+</script>
+@endpush
 @endsection

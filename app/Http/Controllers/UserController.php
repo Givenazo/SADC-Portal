@@ -27,8 +27,11 @@ class UserController extends Controller
             // Return only the tbody rows for AJAX
             return response()->view('admin.users.partials.tbody', compact('users'));
         }
-        return view('admin.users.index', compact('users', 'search'));
+        $countries = \App\Models\Country::all();
+        $roles = \App\Models\Role::all();
+        return view('admin.users.index', compact('users', 'search', 'countries', 'roles'));
     }
+
 
     // Show create form
     public function create()
@@ -73,7 +76,7 @@ class UserController extends Controller
             'role_id' => 'required|exists:roles,id',
             'password' => 'nullable|string|min:8|confirmed',
         ]);
-        if ($validated['password']) {
+        if (!empty($validated['password'] ?? null)) {
             $user->password = bcrypt($validated['password']);
         }
         $user->name = $validated['name'];

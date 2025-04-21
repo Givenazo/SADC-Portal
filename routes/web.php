@@ -30,6 +30,20 @@ Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('admin.dashboard');
 
+// Payments Management
+Route::get('/admin/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('admin.payments');
+Route::post('/admin/payments/capture', [\App\Http\Controllers\Admin\PaymentController::class, 'capture'])
+    ->middleware(['auth', 'verified'])
+    ->name('admin.payments.capture');
+Route::get('/admin/payments/filter', [\App\Http\Controllers\Admin\PaymentController::class, 'filter'])
+    ->middleware(['auth', 'verified'])
+    ->name('admin.payments.filter');
+Route::get('/admin/payments/details', [\App\Http\Controllers\Admin\PaymentController::class, 'details'])
+    ->middleware(['auth', 'verified'])
+    ->name('admin.payments.details');
+
 // Suspend/Activate user
 Route::post('/admin/users/suspend', [\App\Http\Controllers\UserController::class, 'suspend'])->name('admin.users.suspend');
 
@@ -134,5 +148,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::post('/contact/submit', [App\Http\Controllers\ContactController::class, 'submit'])->name('contact.submit');
 
 Route::post('/newsletter/subscribe', [App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/revenue/stats', [App\Http\Controllers\Admin\DashboardController::class, 'getRevenueStats'])
+        ->name('admin.revenue.stats');
+});
 
 require __DIR__.'/auth.php';

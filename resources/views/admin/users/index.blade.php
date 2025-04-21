@@ -85,8 +85,8 @@
             data-user-id="{{ $user->id }}"
             data-name="{{ $user->name }}"
             data-email="{{ $user->email }}"
-            data-country="{{ $user->country->name ?? '' }}"
-            data-role="{{ $user->role->name ?? '' }}"
+            data-country-id="{{ $user->country_id ?? '' }}"
+            data-role-id="{{ $user->role_id ?? '' }}"
             style="background:#a21caf;color:#fff;font-weight:bold;border-radius:0.375rem;padding:0.2rem 0.8rem;transition:background 0.2s;white-space:nowrap;display:inline-flex;align-items:center; font-size:1rem;"
             onmouseover="this.style.background='#701a75'" onmouseout="this.style.background='#a21caf'">
             <i class="bi bi-pencil-square" style="margin-right:0.5rem;"></i>Edit
@@ -233,6 +233,8 @@ document.querySelectorAll('.suspend-user-btn').forEach(btn => {
     <button onclick="document.getElementById('editUserModal').style.display='none'" style="position:absolute;top:1rem;right:1rem;font-size:1.5rem;color:#888;background:none;border:none;cursor:pointer;">&times;</button>
     <h2 style="font-size:1.4rem;font-weight:bold;color:#2563eb;margin-bottom:1rem;">Edit User Details</h2>
     <form id="editUserForm" method="POST" action="">
+  @csrf
+  @method('PUT')
       <input type="hidden" name="user_id" id="editUserId">
       <div style="margin-bottom:1rem;">
         <label for="editUserName" style="font-weight:600;">Name:</label>
@@ -244,11 +246,21 @@ document.querySelectorAll('.suspend-user-btn').forEach(btn => {
       </div>
       <div style="margin-bottom:1rem;">
         <label for="editUserCountry" style="font-weight:600;">Country:</label>
-        <input type="text" name="country" id="editUserCountry" class="form-control" style="width:100%;margin-top:0.5rem;padding:0.5rem;border:1px solid #ddd;border-radius:0.375rem;" required>
+        <select name="country_id" id="editUserCountry" class="form-control" style="width:100%;margin-top:0.5rem;padding:0.5rem;border:1px solid #ddd;border-radius:0.375rem;" required>
+          <option value="">Select Country</option>
+          @foreach($countries as $country)
+            <option value="{{ $country->id }}">{{ $country->name }}</option>
+          @endforeach
+        </select>
       </div>
       <div style="margin-bottom:1.5rem;">
         <label for="editUserRole" style="font-weight:600;">Role:</label>
-        <input type="text" name="role" id="editUserRole" class="form-control" style="width:100%;margin-top:0.5rem;padding:0.5rem;border:1px solid #ddd;border-radius:0.375rem;" required>
+        <select name="role_id" id="editUserRole" class="form-control" style="width:100%;margin-top:0.5rem;padding:0.5rem;border:1px solid #ddd;border-radius:0.375rem;" required>
+          <option value="">Select Role</option>
+          @foreach($roles as $role)
+            <option value="{{ $role->id }}">{{ $role->name }}</option>
+          @endforeach
+        </select>
       </div>
       <button type="submit" style="background:#2563eb;color:#fff;font-weight:bold;border-radius:0.375rem;padding:0.5rem 1.2rem;font-size:1rem;">Update User</button>
     </form>
@@ -259,11 +271,25 @@ document.querySelectorAll('.edit-user-btn').forEach(btn => {
   btn.addEventListener('click', function(e) {
     e.preventDefault();
     document.getElementById('editUserId').value = this.dataset.userId;
+// Set form action to correct user update URL
+const editForm = document.getElementById('editUserForm');
+if (editForm) {
+  editForm.action = `/admin/users/${this.dataset.userId}`;
+}
     document.getElementById('editUserName').value = this.dataset.name;
     document.getElementById('editUserEmail').value = this.dataset.email;
-    document.getElementById('editUserCountry').value = this.dataset.country;
-    document.getElementById('editUserRole').value = this.dataset.role;
+    // Set country dropdown
+    const countrySelect = document.getElementById('editUserCountry');
+    if (countrySelect) countrySelect.value = this.dataset.countryId || '';
+    // Set role dropdown
+    const roleSelect = document.getElementById('editUserRole');
+    if (roleSelect) roleSelect.value = this.dataset.roleId || '';
     document.getElementById('editUserModal').style.display = 'flex';
+
+    // Ensure selects are visually updated (for frameworks or custom styling, if any)
+    countrySelect && countrySelect.dispatchEvent(new Event('change'));
+    roleSelect && roleSelect.dispatchEvent(new Event('change'));
+
   });
 });
 </script>
