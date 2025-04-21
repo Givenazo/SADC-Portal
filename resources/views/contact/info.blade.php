@@ -76,7 +76,8 @@
     /* Social Links */
     .social-links {
         margin-top: 2rem;
-        margin-bottom: 2rem;
+        margin-bottom: 3.5rem; /* Increased space below icons */
+        padding-bottom: 2rem;  /* Extra padding to ensure icons don't touch the border */
     }
 
     .social-link {
